@@ -27,8 +27,6 @@ public class SyncplicityClient {
 			user = cmd.getOptionValue(COMMAND_USER);
 			password = cmd.getOptionValue(COMMAND_PASSWORD);
 		} catch (ParseException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
 			HelpFormatter formatter = new HelpFormatter();
 			formatter.printHelp( "SyncplicityClient", options );
 			return;
