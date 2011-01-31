@@ -12,6 +12,7 @@ public class SynchronizationPointData {
 	OwnerData Owner;
 	Long Permission;
 	MappingData[] Mappings;
+	String Path;
 	
 	public Long getId() {
 		return Id;
@@ -72,5 +73,11 @@ public class SynchronizationPointData {
 	}
 	public void setMappings(MappingData[] mappings) {
 		Mappings = mappings;
+	}
+	public String getPath() {
+		return Path;
+	}
+	public void setPath(String path) {
+		Path = path;
 	}
 }

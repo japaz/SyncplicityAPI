@@ -6,6 +6,8 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 
+import com.google.gson.Gson;
+
 
 public class SyncplicityClient {
 
@@ -16,6 +18,16 @@ public class SyncplicityClient {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		
+//		SynchronizationPointData spd = new SynchronizationPointData();
+//		spd.setType(6);
+//		spd.setName("Documents");
+//		OwnerData owner = new OwnerData();
+//		owner.setEmailAddress("aaa.aaa@gmail.com");
+//		spd.setOwner(owner);
+//		
+//		System.out.println(new Gson().toJson(spd).toString());
+		
 		Options options = new Options();
 		options.addOption(COMMAND_USER, true, "Syncplicity user");
 		options.addOption(COMMAND_PASSWORD, true, "Password");
@@ -55,8 +67,6 @@ public class SyncplicityClient {
 	        	
 	        	FolderContentData folderContent = connection.getFolderContents(spd.getId(), spd.getRootFolderId());
 	        }
-	        
-	        FolderContentData folderContent = connection.getFolderContents(32425L, 5555664L);
 	        
         } catch (SyncplicityAuthenticationException e) {
 			// TODO Auto-generated catch block

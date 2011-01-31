@@ -3,6 +3,7 @@ package org.japj;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Formatter;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -32,6 +33,12 @@ import org.apache.http.util.EntityUtils;
 import com.google.gson.Gson;
 
 public class SyncplicityConnection {
+
+	private static final String XML_SYNCPLICITY_URL = "xml.syncplicity.com";
+	private static final String AUTH_TOKEN_URL = "https://xml.syncplicity.com/1.1/auth/tokens.svc";
+	private static final String SYNCPOINTS_LIST_URL = "https://xml.syncplicity.com/1.1/syncpoint/syncpoints.svc/?participants=true";
+	private static final String FOLDER_CONTENT_URL = "https://xml.syncplicity.com/1.1/sync/folder.svc/%s/folder/%s?include=active";
+	private static final String REGISTER_MACHINE_URL = "https://xml.syncplicity.com/1.1/sync/folder.svc/";
 
 	static HttpRequestInterceptor preemptiveAuth = new HttpRequestInterceptor() {
 	    public void process(
@@ -91,11 +98,11 @@ public class SyncplicityConnection {
 		httpclient.addRequestInterceptor(preemptiveAuth, 0);
 
         httpclient.getCredentialsProvider().setCredentials(
-                new AuthScope("xml.syncplicity.com", 443), 
+                new AuthScope(XML_SYNCPLICITY_URL, 443), 
                 new UsernamePasswordCredentials(this.user, this.password));
 
 		
-        HttpGet httpget = new HttpGet("https://xml.syncplicity.com/1.1/auth/tokens.svc");
+        HttpGet httpget = new HttpGet(AUTH_TOKEN_URL);
         
         httpget.setHeader("Accept", "'application/json");
         
@@ -147,7 +154,7 @@ public class SyncplicityConnection {
         try {
         	
 	        // Request folders
-	        HttpGet httpget = new HttpGet("https://xml.syncplicity.com/1.1/syncpoint/syncpoints.svc/?participants=true");
+	        HttpGet httpget = new HttpGet(SYNCPOINTS_LIST_URL);
 	        
 	        setHeaders(httpget);
 	        
@@ -185,7 +192,7 @@ public class SyncplicityConnection {
         try {
         	
 	        // Request folders
-	        HttpGet httpget = new HttpGet("https://xml.syncplicity.com/1.1/sync/folder.svc/"+syncPointId+"/folder/"+folderId+"?include=active");
+        	HttpGet httpget = new HttpGet(new Formatter().format(FOLDER_CONTENT_URL, syncPointId, folderId).toString());
 
 	        setHeaders(httpget);
 	        System.out.println("executing request" + httpget.getRequestLine());
@@ -222,7 +229,7 @@ public class SyncplicityConnection {
         try {
         	
 	        // Request folders
-	        HttpPost httpPost = new HttpPost("https://xml.syncplicity.com/1.1/sync/folder.svc/");
+	        HttpPost httpPost = new HttpPost(REGISTER_MACHINE_URL);
 
 			httpPost.setHeader("Accept", "application/json");
 			httpPost.setHeader("Content-Type", "application/json");
