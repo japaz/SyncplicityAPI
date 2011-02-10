@@ -18,8 +18,10 @@ import org.apache.http.auth.AuthenticationException;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.protocol.ClientContext;
 import org.apache.http.entity.BasicHttpEntity;
@@ -37,6 +39,10 @@ public class SyncplicityConnection {
 	private static final String XML_SYNCPLICITY_URL = "xml.syncplicity.com";
 	private static final String AUTH_TOKEN_URL = "https://xml.syncplicity.com/1.1/auth/tokens.svc";
 	private static final String SYNCPOINTS_LIST_URL = "https://xml.syncplicity.com/1.1/syncpoint/syncpoints.svc/?participants=true";
+	private static final String ADD_SYNCPOINT_URL = "https://xml.syncplicity.com/1.1/syncpoint/syncpoints.svc/";
+	private static final String DEL_SYNCPOINT_URL = "https://xml.syncplicity.com/1.1/syncpoint/syncpoint.svc/";
+	private static final String ADD_SHARING_PARTICIPANT_URL = "https://xml.syncplicity.com/1.1/syncpoint/syncpoint_participant.svc/%s/participant/%s";
+	private static final String DEL_SHARING_PARTICIPANT_URL = "https://xml.syncplicity.com/1.1/syncpoint/syncpoint_participant.svc/%s/participant/%s";
 	private static final String FOLDER_CONTENT_URL = "https://xml.syncplicity.com/1.1/sync/folder.svc/%s/folder/%s?include=active";
 	private static final String REGISTER_MACHINE_URL = "https://xml.syncplicity.com/1.1/sync/folder.svc/";
 
@@ -186,6 +192,119 @@ public class SyncplicityConnection {
         return synchronizationPoints;
     }
 
+	public SynchronizationPointData[] addSynchronizationPoint(SynchronizationPointData[] syncPoints) { 
+		SynchronizationPointData[] synchronizationPoints =null;
+
+        try {
+        	
+	        // Request folders
+	        HttpPost httppost= new HttpPost(ADD_SYNCPOINT_URL);
+	        
+	        setHeaders(httppost);
+	        
+	        httppost.setEntity(new SerializableEntity(new Gson().toJson(syncPoints), true));
+	        
+	        System.out.println("executing request" + httppost.getRequestLine());
+	        
+
+	        HttpResponse response = httpclient.execute(httppost);
+	        HttpEntity entity = response.getEntity();
+	
+	        System.out.println("----------------------------------------");
+	        System.out.println(response.getStatusLine());
+	        if (entity != null) {
+	            System.out.println("Response content length: " + entity.getContentLength());
+	            System.out.println("Response content Type: " + entity.getContentType());
+	            
+	            String responseContent = EntityUtils.toString(entity);
+	            System.out.println("Response content: " + responseContent);
+	            
+	            synchronizationPoints = new Gson().fromJson(responseContent, 
+	            												SynchronizationPointData[].class);
+	
+	            System.out.println("lenght: " + synchronizationPoints.length);
+	        }
+       
+	        
+        } catch (Exception e) {
+        	e.printStackTrace();
+        }
+        
+        return synchronizationPoints;
+    }
+	
+	public void deleteSynchronizationPoint(Long syncPointId) {
+        try {
+	        HttpDelete httpdelete = new HttpDelete(DEL_SYNCPOINT_URL+syncPointId);
+	        
+	        setHeaders(httpdelete);
+	        
+	        System.out.println("executing request" + httpdelete.getRequestLine());
+
+	        HttpResponse response = httpclient.execute(httpdelete);
+	        HttpEntity entity = response.getEntity();
+	
+	        System.out.println("----------------------------------------");
+	        System.out.println(response.getStatusLine());
+	        if (entity != null) {
+	            System.out.println("Response content length: " + entity.getContentLength());
+	            System.out.println("Response content Type: " + entity.getContentType());
+	        }
+        } catch (Exception e) {
+        	e.printStackTrace();
+        }
+	}
+	
+	public void addSharingParticipant(Long syncPointId, SharingParticipantData sharingParticipant) {
+        try {
+	        HttpPut httpput = new HttpPut(new Formatter().format(FOLDER_CONTENT_URL, 
+	        														syncPointId, 
+	        														sharingParticipant.getEmailAddress()).toString());
+	        
+	        setHeaders(httpput);
+	        
+	        httpput.setEntity(new SerializableEntity(new Gson().toJson(sharingParticipant), true));
+	        
+	        System.out.println("executing request" + httpput.getRequestLine());
+
+	        HttpResponse response = httpclient.execute(httpput);
+	        HttpEntity entity = response.getEntity();
+	
+	        System.out.println("----------------------------------------");
+	        System.out.println(response.getStatusLine());
+	        if (entity != null) {
+	            System.out.println("Response content length: " + entity.getContentLength());
+	            System.out.println("Response content Type: " + entity.getContentType());
+	        }
+        } catch (Exception e) {
+        	e.printStackTrace();
+        }
+	}
+	
+	public void deleteSharingParticipant(Long syncPointId, String emailAddress) {
+        try {
+	        HttpDelete httpdelete = new HttpDelete(new Formatter().format(FOLDER_CONTENT_URL, 
+	        																syncPointId, 
+	        																emailAddress).toString());
+	        
+	        setHeaders(httpdelete);
+	        
+	        System.out.println("executing request" + httpdelete.getRequestLine());
+
+	        HttpResponse response = httpclient.execute(httpdelete);
+	        HttpEntity entity = response.getEntity();
+	
+	        System.out.println("----------------------------------------");
+	        System.out.println(response.getStatusLine());
+	        if (entity != null) {
+	            System.out.println("Response content length: " + entity.getContentLength());
+	            System.out.println("Response content Type: " + entity.getContentType());
+	        }
+        } catch (Exception e) {
+        	e.printStackTrace();
+        }
+	}
+	
 	public FolderContentData getFolderContents(Long syncPointId, Long folderId) {
 		FolderContentData folderContent =null;
 
@@ -231,8 +350,7 @@ public class SyncplicityConnection {
 	        // Request folders
 	        HttpPost httpPost = new HttpPost(REGISTER_MACHINE_URL);
 
-			httpPost.setHeader("Accept", "application/json");
-			httpPost.setHeader("Content-Type", "application/json");
+	        setHeaders(httpPost);
 	        System.out.println("executing request" + httpPost.getRequestLine());
 	        
 	        httpPost.setEntity(new SerializableEntity(new Gson().toJson(basicMachine), true));
@@ -279,5 +397,6 @@ public class SyncplicityConnection {
 	private void setHeaders(HttpRequestBase httpRequest) {
 		httpRequest.setHeader("Accept", "application/json");
 		httpRequest.setHeader("Authorization", "Token "+authToken);
+		httpRequest.setHeader("Content-Type", "application/json");
 	}
 }

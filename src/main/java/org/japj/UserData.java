@@ -6,6 +6,9 @@ public class UserData {
 	private String LastName;
 	private String AccountType;
 	
+	// For Add Sharing Participants In Bulk
+	private String EmailAddress;
+	
 	public String getFirstName() {
 		return FirstName;
 	}
@@ -23,6 +26,12 @@ public class UserData {
 	}
 	public void setAccountType(String accountType) {
 		AccountType = accountType;
+	}
+	public String getEmailAddress() {
+		return EmailAddress;
+	}
+	public void setEmailAddress(String emailAddress) {
+		EmailAddress = emailAddress;
 	}
 	
 	
