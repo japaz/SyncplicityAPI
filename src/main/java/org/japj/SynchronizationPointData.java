@@ -1,6 +1,14 @@
 package org.japj;
 
 public class SynchronizationPointData {
+	
+	public static final Long SYNCPOINT_TYPE_DOCUMENTS = 1L;
+	public static final Long SYNCPOINT_TYPE_MUSIC = 2L;
+	public static final Long SYNCPOINT_TYPE_PICTURES = 3L;
+	public static final Long SYNCPOINT_TYPE_DESKTOP = 4L;
+	public static final Long SYNCPOINT_TYPE_FAVORITES = 5L;
+	public static final Long SYNCPOINT_TYPE_CUSTOM = 6L;
+	
 
 	Long Id;
 	Long Type;
@@ -13,6 +21,9 @@ public class SynchronizationPointData {
 	Long Permission;
 	MappingData[] Mappings;
 	String Path;
+	
+	// Review if needed
+	OwnerData User;
 	
 	public Long getId() {
 		return Id;
@@ -79,5 +90,12 @@ public class SynchronizationPointData {
 	}
 	public void setPath(String path) {
 		Path = path;
+	}
+	public OwnerData getUser() {
+		return User;
+	}
+	public void setUser(OwnerData user) {
+		// TODO Auto-generated method stub
+		User = user;
 	}
 }
