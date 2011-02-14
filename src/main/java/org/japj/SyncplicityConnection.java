@@ -48,6 +48,7 @@ public class SyncplicityConnection {
 
 	private static final String XML_SYNCPLICITY_URL = "xml.syncplicity.com";
 	private static final String AUTH_TOKEN_URL = "https://xml.syncplicity.com/1.1/auth/tokens.svc";
+	private static final String AUTH_TOKEN_DETAILS_URL = "https://xml.syncplicity.com/1.1/auth/token.svc/%s";
 	private static final String SYNCPOINTS_LIST_URL = "https://xml.syncplicity.com/1.1/syncpoint/syncpoints.svc/?participants=true";
 	private static final String ADD_SYNCPOINT_URL = "https://xml.syncplicity.com/1.1/syncpoint/syncpoints.svc/";
 	private static final String DEL_SYNCPOINT_URL = "https://xml.syncplicity.com/1.1/syncpoint/syncpoint.svc/";
@@ -182,6 +183,53 @@ public class SyncplicityConnection {
 
 		return authenticationData[0];
 	}
+
+	public AuthenticationData getTokenData(String token)
+		throws ClientProtocolException, IOException, SyncplicityAuthenticationException {
+		
+		AuthenticationData authenticationData =null;
+		
+		DefaultHttpClient httpclient = new DefaultHttpClient();
+	
+		try {
+	        // Request folders
+	        HttpGet httpget = new HttpGet(new Formatter().format(AUTH_TOKEN_DETAILS_URL,
+	        														token).toString());
+	        
+	        setHeaders(httpget);
+	        
+	        System.out.println("executing request" + httpget.getRequestLine());
+	
+	        HttpResponse response = httpclient.execute(httpget);
+	        HttpEntity entity = response.getEntity();
+	
+	        System.out.println("----------------------------------------");
+	        System.out.println(response.getStatusLine());
+	
+	        if (response.getStatusLine().getStatusCode()<400) {
+		        if (entity != null) {
+		            System.out.println("Response content length: " + entity.getContentLength());
+		            System.out.println("Response content Type: " + entity.getContentType());
+		            
+		            String responseContent = EntityUtils.toString(entity);
+		            System.out.println("Response content: " + responseContent);
+		            
+		            authenticationData = new Gson().fromJson(responseContent, 
+		            											AuthenticationData.class);
+		        }
+	        } else {
+	        	throw new SyncplicityAuthenticationException(response.getStatusLine().getReasonPhrase());
+	        }
+		} finally {
+	        // When HttpClient instance is no longer needed, 
+	        // shut down the connection manager to ensure
+	        // immediate deallocation of all system resources
+	        httpclient.getConnectionManager().shutdown();
+		}
+	    
+	    return authenticationData;
+	}
+	
 	
 	public SynchronizationPointData[] getSynchronizationPoints() 
 		throws ClientProtocolException, IOException, SyncplicityAuthenticationException {

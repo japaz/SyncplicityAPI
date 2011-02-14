@@ -5,6 +5,9 @@ This is a first effort to create a Java version of the Synplicity API.
 It uses the JSON format to communicate with the Syncplicity REST API.
 And small example is included
 
+## JUnit tests
+To execute the test it is necessary to include the Syncplicity user and password in src/test/resources/JUnit.properties
+
 ## Dependencies
 - org.apache.httpcomponents:httpclient
 - org.apache.httpcomponents:httpmime
