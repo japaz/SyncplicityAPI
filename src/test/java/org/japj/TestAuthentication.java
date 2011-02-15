@@ -49,5 +49,22 @@ public class TestAuthentication {
 		assertEquals(authenticationData.getUser().getLastName(), authenticationData2.getUser().getLastName());
 		assertNotNull(authenticationData2.getMachine());
 		assertNotNull(authenticationData2.getMachine().getName());
-}
+	}
+	
+	@Test
+	public void testAuthenticateFailure() 
+		throws ClientProtocolException, IOException {
+		
+		SyncplicityConnection connection = new SyncplicityConnection();
+        connection.setUser(user+"sss");
+        connection.setPassword(password);
+        
+        try {
+        	AuthenticationData authenticationData = connection.authenticate();
+        	fail("No exception generated with bad password"); 
+        } catch (SyncplicityAuthenticationException e) {
+        	assertEquals(e.getMessage(), SyncplicityAuthenticationException.EMAIL_OR_PASSWROD_INVALID);
+        }
+	}
+	
 }
