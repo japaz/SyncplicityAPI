@@ -1,14 +1,25 @@
 package org.japj;
 
 import static org.junit.Assert.*;
+import static org.junit.internal.matchers.IsCollectionContaining.*;
+import static org.hamcrest.CoreMatchers.*;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
+import java.util.Random;
 
 import org.apache.http.client.ClientProtocolException;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.internal.matchers.IsCollectionContaining;
 
 public class TestAuthentication {
 	
@@ -66,5 +77,73 @@ public class TestAuthentication {
         	assertEquals(e.getMessage(), SyncplicityAuthenticationException.EMAIL_OR_PASSWROD_INVALID);
         }
 	}
-	
+
+	@Test
+	public void testCreationModificationSyncPoints()
+		throws ClientProtocolException, IOException, SyncplicityAuthenticationException {
+		
+		String syncPointName = "Test_Delete." + new Random().nextInt();
+		
+		SyncplicityConnection connection = new SyncplicityConnection();
+        connection.setUser(user);
+        connection.setPassword(password);
+        
+        connection.authenticate();
+        
+        
+        ArrayList<SynchronizationPointData> syncPoints = new ArrayList<SynchronizationPointData>();
+        syncPoints.add(new SynchronizationPointData(SynchronizationPointData.SYNCPOINT_TYPE_CUSTOM,
+        												syncPointName,
+        												new OwnerData(user)));
+        
+        
+		SynchronizationPointData[] addedSynchronizationPoints = connection.addSynchronizationPoint(syncPoints.toArray(new SynchronizationPointData[syncPoints.size()]));
+		
+		assertNotNull(addedSynchronizationPoints);
+		assertEquals(syncPoints.size(), addedSynchronizationPoints.length);
+
+		SynchronizationPointData syncPoint = addedSynchronizationPoints[0];
+		
+		connection.deleteSynchronizationPoint(syncPoint.getId());
+
+		
+		SynchronizationPointData[] synchronizationPoints = connection.getSynchronizationPoints();
+		
+		assertThat(Arrays.asList(synchronizationPoints), not(hasItem(syncPoint)));
+	}
+
+	@Test
+	public void testUploadFile()
+		throws ClientProtocolException, IOException, SyncplicityAuthenticationException, NoSuchAlgorithmException {
+		
+		String testId = ""+new Random().nextInt();
+		String syncPointName = "Test_Delete." + testId;
+		
+		SyncplicityConnection connection = new SyncplicityConnection();
+        connection.setUser(user);
+        connection.setPassword(password);
+        
+        connection.authenticate();
+        
+        
+        ArrayList<SynchronizationPointData> syncPoints = new ArrayList<SynchronizationPointData>();
+        syncPoints.add(new SynchronizationPointData(SynchronizationPointData.SYNCPOINT_TYPE_CUSTOM,
+        												syncPointName,
+        												new OwnerData(user)));
+        
+        
+		SynchronizationPointData[] addedSynchronizationPoints = connection.addSynchronizationPoint(syncPoints.toArray(new SynchronizationPointData[syncPoints.size()]));
+		
+		SynchronizationPointData syncPoint = addedSynchronizationPoints[0];
+		
+		byte[] byteArray = "hello".getBytes("UTF-8"); // choose a charset
+		ByteArrayInputStream fileData = new ByteArrayInputStream(byteArray);
+		
+		MessageDigest md = MessageDigest.getInstance("SHA-256");
+		md.update(byteArray);
+		
+		connection.uploadFile(fileData, "/new_file"+testId, new String(md.digest()), syncPoint.getRootFolderId());
+		
+		connection.deleteSynchronizationPoint(syncPoint.getId());
+	}
 }

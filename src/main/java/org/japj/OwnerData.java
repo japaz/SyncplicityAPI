@@ -5,6 +5,14 @@ public class OwnerData {
 	String FirstName;
 	String LastName;
 	
+	private OwnerData() {
+		
+	}
+	
+	public OwnerData(String emailAddress) {
+		this.EmailAddress = emailAddress;
+	}
+	
 	public String getEmailAddress() {
 		return EmailAddress;
 	}

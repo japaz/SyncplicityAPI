@@ -79,14 +79,10 @@ public class SyncplicityClient {
 	        System.out.println("User.AccountType: " + authenticationData.getUser().getAccountType());
 	        
 	        SynchronizationPointData[] synchronizationPoints = new SynchronizationPointData[1];
-	        synchronizationPoints[0] = new SynchronizationPointData();
-	        synchronizationPoints[0].setName("New Syncpoint");
-	        synchronizationPoints[0].setType(6L);
-	        OwnerData owner = new OwnerData();
-	        owner.setEmailAddress(user);
-	        synchronizationPoints[0].setOwner(owner);
-	        //synchronizationPoints[0].setUser(owner);
-	        
+	        synchronizationPoints[0] = new SynchronizationPointData(SynchronizationPointData.SYNCPOINT_TYPE_CUSTOM,
+	        														"New Syncpoint", 
+	        														new OwnerData(user));
+
 	        connection.addSynchronizationPoint(synchronizationPoints);
 	        
 	        synchronizationPoints = connection.getSynchronizationPoints();

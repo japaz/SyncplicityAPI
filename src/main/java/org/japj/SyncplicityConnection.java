@@ -705,7 +705,7 @@ public class SyncplicityConnection {
 		}
 	}
 
-	public void uploadFile(InputStream fileData, String filePath, String sha256, String sessionKey, Long virtualFolderId)  
+	public void uploadFile(InputStream fileData, String filePath, String sha256, Long virtualFolderId)  
 		throws IOException, SyncplicityAuthenticationException { 
 		
 		DefaultHttpClient httpclient = new DefaultHttpClient();
@@ -720,7 +720,7 @@ public class SyncplicityConnection {
 	        uploadEntity.addPart("fileData", new InputStreamBody(fileData, "fileData"));
 	        uploadEntity.addPart("filepath", new StringBody(filePath));
 	        uploadEntity.addPart("sha256", new StringBody(sha256));
-	        uploadEntity.addPart("sessionKey", new StringBody(sessionKey));
+	        uploadEntity.addPart("sessionKey", new StringBody(authToken));
 	        uploadEntity.addPart("virtualFolderId", new StringBody(String.valueOf(virtualFolderId)));
 	        
 	        httppost.setEntity(uploadEntity);
