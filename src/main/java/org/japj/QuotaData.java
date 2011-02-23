@@ -7,13 +7,7 @@ public class QuotaData {
 	public Long getActiveBytes() {
 		return ActiveBytes;
 	}
-	public void setActiveBytes(Long activeBytes) {
-		ActiveBytes = activeBytes;
-	}
 	public Long getAvailableBytes() {
 		return AvailableBytes;
-	}
-	public void setAvailableBytes(Long availableBytes) {
-		AvailableBytes = availableBytes;
 	}
 }

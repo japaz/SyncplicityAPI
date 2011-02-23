@@ -5,24 +5,18 @@ public class GlobalFileData {
     Long Length;
     Boolean Stored;
     
+    public GlobalFileData(String hash, Long length) {
+    	Hash = hash;
+    	Length = length;
+    }
+    
 	public String getHash() {
 		return Hash;
-	}
-	public void setHash(String hash) {
-		Hash = hash;
 	}
 	public Long getLength() {
 		return Length;
 	}
-	public void setLength(Long length) {
-		Length = length;
-	}
 	public Boolean getStored() {
 		return Stored;
 	}
-	public void setStored(Boolean stored) {
-		Stored = stored;
-	}
-    
-    
 }

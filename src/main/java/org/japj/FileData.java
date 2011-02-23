@@ -17,50 +17,26 @@ public class FileData {
 	public Long getSyncpointId() {
 		return SyncpointId;
 	}
-	public void setSyncpointId(Long syncpointId) {
-		SyncpointId = syncpointId;
-	}
 	public Long getFileId() {
 		return FileId;
-	}
-	public void setFileId(Long fileId) {
-		FileId = fileId;
 	}
 	public String getFilename() {
 		return Filename;
 	}
-	public void setFilename(String filename) {
-		Filename = filename;
-	}
 	public Long getLength() {
 		return Length;
-	}
-	public void setLength(Long length) {
-		Length = length;
 	}
 	public String getLastWriteTimeUtc() {
 		return LastWriteTimeUtc;
 	}
-	public void setLastWriteTimeUtc(String lastWriteTimeUtc) {
-		LastWriteTimeUtc = lastWriteTimeUtc;
-	}
 	public Long getStatus() {
 		return Status;
-	}
-	public void setStatus(Long status) {
-		Status = status;
 	}
 	public Long getLatestVersionId() {
 		return LatestVersionId;
 	}
-	public void setLatestVersionId(Long latestVersionId) {
-		LatestVersionId = latestVersionId;
-	}
 	public String getThumbnailUrl() {
 		return ThumbnailUrl;
-	}
-	public void setThumbnailUrl(String thumbnailUrl) {
-		ThumbnailUrl = thumbnailUrl;
 	}
 	public static Long getStatusAdded() {
 		return STATUS_ADDED;

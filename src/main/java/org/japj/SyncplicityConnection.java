@@ -1,12 +1,27 @@
 package org.japj;
 
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.Reader;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.net.ProxySelector;
 import java.net.URI;
+import java.nio.charset.Charset;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.Formatter;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -22,21 +37,33 @@ import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.protocol.ClientContext;
+import org.apache.http.conn.ClientConnectionManager;
+import org.apache.http.conn.ClientConnectionRequest;
+import org.apache.http.conn.ConnectionKeepAliveStrategy;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.entity.BasicHttpEntity;
+import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.SerializableEntity;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.AbstractContentBody;
+import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.InputStreamBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.ProxySelectorRoutePlanner;
+import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
@@ -125,7 +152,7 @@ public class SyncplicityConnection {
 		
 		AuthenticationData[] authenticationData = null; 
 
-		DefaultHttpClient httpclient = new DefaultHttpClient();
+		DefaultHttpClient httpclient = wrapClient(new DefaultHttpClient());
 		// Add as the very first interceptor in the protocol chain
 		httpclient.addRequestInterceptor(preemptiveAuth, 0);
 
@@ -189,7 +216,7 @@ public class SyncplicityConnection {
 		
 		AuthenticationData authenticationData =null;
 		
-		DefaultHttpClient httpclient = new DefaultHttpClient();
+		DefaultHttpClient httpclient = wrapClient(new DefaultHttpClient());
 	
 		try {
 	        // Request folders
@@ -236,7 +263,7 @@ public class SyncplicityConnection {
 		
 		SynchronizationPointData[] synchronizationPoints =null;
 		
-		DefaultHttpClient httpclient = new DefaultHttpClient();
+		DefaultHttpClient httpclient = wrapClient(new DefaultHttpClient());
 
 		try {
 	        // Request folders
@@ -283,7 +310,7 @@ public class SyncplicityConnection {
 		
 		SynchronizationPointData[] synchronizationPoints =null;
 
-		DefaultHttpClient httpclient = new DefaultHttpClient();
+		DefaultHttpClient httpclient = wrapClient(new DefaultHttpClient());
 
 		try {
 	        // Request folders
@@ -332,7 +359,7 @@ public class SyncplicityConnection {
 	public void deleteSynchronizationPoint(Long syncPointId) 
 		throws ClientProtocolException, IOException, SyncplicityAuthenticationException {
         
-		DefaultHttpClient httpclient = new DefaultHttpClient();
+		DefaultHttpClient httpclient = wrapClient(new DefaultHttpClient());
 
 		try {
 			HttpDelete httpdelete = new HttpDelete(DEL_SYNCPOINT_URL+syncPointId);
@@ -366,7 +393,7 @@ public class SyncplicityConnection {
 	public void addSharingParticipant(Long syncPointId, SharingParticipantData sharingParticipant) 
 		throws IOException, SyncplicityAuthenticationException {
         
-		DefaultHttpClient httpclient = new DefaultHttpClient();
+		DefaultHttpClient httpclient = wrapClient(new DefaultHttpClient());
 
 		try {
 			HttpPut httpput = new HttpPut(new Formatter().format(ADD_SHARING_PARTICIPANT_URL, 
@@ -405,7 +432,7 @@ public class SyncplicityConnection {
 		throws IOException, SyncplicityAuthenticationException {
 		SharingParticipantData[] sharingParticipantCreated = null; 
         
-		DefaultHttpClient httpclient = new DefaultHttpClient();
+		DefaultHttpClient httpclient = wrapClient(new DefaultHttpClient());
 
 		try {
 			HttpPost httppost = new HttpPost(ADD_SHARING_PARTICIPANT_BULK_URL);
@@ -451,7 +478,7 @@ public class SyncplicityConnection {
 	public void deleteSharingParticipant(Long syncPointId, String emailAddress) 
 		throws ClientProtocolException, IOException, SyncplicityAuthenticationException {
         
-		DefaultHttpClient httpclient = new DefaultHttpClient();
+		DefaultHttpClient httpclient = wrapClient(new DefaultHttpClient());
 
 		try {
 			HttpDelete httpdelete = new HttpDelete(new Formatter().format(DEL_SHARING_PARTICIPANT_URL, 
@@ -488,7 +515,7 @@ public class SyncplicityConnection {
 		
 		FolderContentData folderContent =null;
 
-		DefaultHttpClient httpclient = new DefaultHttpClient();
+		DefaultHttpClient httpclient = wrapClient(new DefaultHttpClient());
 
 		String include="active";
 		if (deleted) {
@@ -537,7 +564,7 @@ public class SyncplicityConnection {
 		
 		FileVersionData[] fileVersionData =null;
 
-		DefaultHttpClient httpclient = new DefaultHttpClient();
+		DefaultHttpClient httpclient = wrapClient(new DefaultHttpClient());
 
 		try {
 	    	HttpGet httpget = new HttpGet(new Formatter().format(FILE_VERSION_LIST_URL, 
@@ -583,7 +610,7 @@ public class SyncplicityConnection {
 		
 		LinkData[] createdLinks = null;
 		
-		DefaultHttpClient httpclient = new DefaultHttpClient();
+		DefaultHttpClient httpclient = wrapClient(new DefaultHttpClient());
 
 		try {
 	        // Request folders
@@ -632,7 +659,7 @@ public class SyncplicityConnection {
 	public void deleteShareableLink(String token) 
 		throws ClientProtocolException, IOException, SyncplicityAuthenticationException {
 	    
-		DefaultHttpClient httpclient = new DefaultHttpClient();
+		DefaultHttpClient httpclient = wrapClient(new DefaultHttpClient());
 	
 		try {
 			HttpDelete httpdelete = new HttpDelete(DEL_SHAREABLE_LINK_URL+token);
@@ -663,15 +690,15 @@ public class SyncplicityConnection {
 		}
 	}
 
-	public InputStream downloadFile(String token, Long syncpointId, Long fileVersionId) 
+	public void downloadFile(Long syncpointId, Long fileVersionId, OutputStream os) 
 		throws ClientProtocolException, IOException, SyncplicityAuthenticationException {
 	
-		DefaultHttpClient httpclient = new DefaultHttpClient();
+		HttpClient httpclient = wrapClient(new DefaultHttpClient());
 	
 		try {
 	        // Request folders
 	        HttpGet httpget = new HttpGet(new Formatter().format(DOWNLOAD_FILE_URL,
-	        														token,
+	        														authToken,
 	        														syncpointId,
 	        														fileVersionId).toString());
 	        
@@ -690,10 +717,22 @@ public class SyncplicityConnection {
 		            System.out.println("Response content length: " + entity.getContentLength());
 		            System.out.println("Response content Type: " + entity.getContentType());
 
-		            return entity.getContent();
-		        } else {
-		        	return null;
-		        }
+		            InputStream is = entity.getContent();
+		            if (is !=null) {
+					    byte[] buffer = new byte[1024];
+					    try {
+					        int count = is.read(buffer);
+					        while (count == 1024) {
+					        	os.write(buffer);
+					        }
+					        if (count != -1) {
+					        	os.write(buffer, 0, count);
+					        }
+					    } finally {
+					        is.close();
+					    }
+		            }
+		        } 
 	        } else {
 	        	throw new SyncplicityAuthenticationException(response.getStatusLine().getReasonPhrase());
 	        }
@@ -705,28 +744,125 @@ public class SyncplicityConnection {
 		}
 	}
 
-	public void uploadFile(InputStream fileData, String filePath, String sha256, Long virtualFolderId)  
-		throws IOException, SyncplicityAuthenticationException { 
+	public GlobalFileData uploadFile(InputStream fileData, String filePath, Long virtualFolderId)  
+		throws IOException, SyncplicityAuthenticationException, NoSuchAlgorithmException { 
 		
-		DefaultHttpClient httpclient = new DefaultHttpClient();
-	
+		if (fileData == null || filePath == null || virtualFolderId == null) {
+			throw new java.lang.IllegalArgumentException();
+		}
+		
+		DefaultHttpClient httpclient = wrapClient(new DefaultHttpClient());
+
 		try {
 	        // Request folders
 	        HttpPost httppost= new HttpPost(UPLOAD_FILE_URL);
 	        
-	        setHeaders(httppost);
-	
-	        MultipartEntity uploadEntity = new MultipartEntity();
-	        uploadEntity.addPart("fileData", new InputStreamBody(fileData, "fileData"));
-	        uploadEntity.addPart("filepath", new StringBody(filePath));
-	        uploadEntity.addPart("sha256", new StringBody(sha256));
+			//httppost.setHeader("Accept", "application/json");
+			//httppost.setHeader("Authorization", "Token "+authToken);
+			//httppost.setHeader("Content-Type", "application/json");
+
+			//setHeaders(httppost);
+	        
+	        MultipartEntity uploadEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+	        
+	        StringBuffer sha256 = new StringBuffer();
+	        final long fileLength = getSHA256(fileData, sha256);
+
+	        // To set the body length
+//	        uploadEntity.addPart("fileData", new InputStreamBody(fileData, filePath) {
+//													@Override
+//													public long getContentLength() {
+//														// TODO Auto-generated method stub
+//														return fileLength;
+//													}
+//												});
+	        
+	        // To don't set the body length
+	        uploadEntity.addPart("fileData", new InputStreamBody(fileData, filePath));
+	        
+//	        File fi = new File("C:\\Users\\alberto\\Downloads\\hola.txt");
+//	        uploadEntity.addPart("fileData", new FileBody(fi));
+	        
+	        uploadEntity.addPart("filepath", new StringBody(filePath,Charset.forName("UTF-8")));
+	        uploadEntity.addPart("sha256", new StringBody(sha256.toString(), Charset.forName("UTF-8")));
 	        uploadEntity.addPart("sessionKey", new StringBody(authToken));
 	        uploadEntity.addPart("virtualFolderId", new StringBody(String.valueOf(virtualFolderId)));
 	        
 	        httppost.setEntity(uploadEntity);
+	        System.out.println("content length: " + uploadEntity.getContentLength());
+	        
+//	        // New way of work --> BEGIN
+//	        String BOUNDRY="----------------------------3281882e2859";
+//	        httppost.setHeader("Content-Type", "multipart/form-data; boundary=" + BOUNDRY);
+////	        httppost.setHeader("Accept", "*/*");
+////	        httppost.setHeader("Connection", null);
+////	        httppost.setHeader("User-Agent", null);
+//	        
+//	     // These strings are sent in the request body. They provide information about the file being uploaded
+//            String contentDispositionFile = "Content-Disposition: form-data; name=\"%s\"; filename=\"%s\"";
+//            String contentDisposition = "Content-Disposition: form-data; name=\"%s\"";
+//            String contentType = "Content-Type: application/octet-stream";
+//
+//         // This is the standard format for a multipart request
+//            StringBuilder requestBody = new StringBuilder();
+//            requestBody.append("--");
+//            requestBody.append(BOUNDRY);
+//            requestBody.append("\r\n");
+//            requestBody.append(new Formatter().format(contentDispositionFile,"fileData", "C:\\Users\\alberto\\Downloads\\hola.txt").toString());
+//            requestBody.append("\r\n");
+//            requestBody.append(contentType);
+//            requestBody.append("\r\n");
+//            requestBody.append("\r\n");
+//            requestBody.append(convertStreamToString(fileData));
+//            requestBody.append("\r\n");
+//            
+//            requestBody.append("--");
+//            requestBody.append(BOUNDRY);
+//            requestBody.append("\r\n");
+//            requestBody.append(new Formatter().format(contentDisposition,"filepath").toString());
+//            requestBody.append("\r\n");
+//            requestBody.append("\r\n");
+//            requestBody.append("/Test_Delete.867424937/hola.txt");
+//            requestBody.append("\r\n");
+//            
+//            requestBody.append("--");
+//            requestBody.append(BOUNDRY);
+//            requestBody.append("\r\n");
+//            requestBody.append(new Formatter().format(contentDisposition,"sha256").toString());
+//            requestBody.append("\r\n");
+//            requestBody.append("\r\n");
+//            requestBody.append(sb.toString());
+//            requestBody.append("\r\n");
+//            
+//            requestBody.append("--");
+//            requestBody.append(BOUNDRY);
+//            requestBody.append("\r\n");
+//            requestBody.append(new Formatter().format(contentDisposition,"sessionKey").toString());
+//            requestBody.append("\r\n");
+//            requestBody.append("\r\n");
+//            requestBody.append(authToken);
+//            requestBody.append("\r\n");
+//            
+//            requestBody.append("--");
+//            requestBody.append(BOUNDRY);
+//            requestBody.append("\r\n");
+//            requestBody.append(new Formatter().format(contentDisposition,"virtualFolderId").toString());
+//            requestBody.append("\r\n");
+//            requestBody.append("\r\n");
+//            requestBody.append(String.valueOf(virtualFolderId));
+//            requestBody.append("\r\n");
+//
+//            requestBody.append("--");
+//            requestBody.append(BOUNDRY);
+//            requestBody.append("--");
+//            requestBody.append("\r\n");
+//            
+//	        ByteArrayEntity bae = new ByteArrayEntity(requestBody.toString().getBytes());
+//	        httppost.setEntity(bae);
+	        
 	        
 	        System.out.println("executing request" + httppost.getRequestLine());
-	
+
 	        HttpResponse response = httpclient.execute(httppost);
 	        HttpEntity entity = response.getEntity();
 	
@@ -741,6 +877,8 @@ public class SyncplicityConnection {
 	        } else {
 	        	throw new SyncplicityAuthenticationException(response.getStatusLine().getReasonPhrase());
 	        }
+	        
+	        return new GlobalFileData(sha256.toString(), fileLength);
 		} finally {
 	        // When HttpClient instance is no longer needed, 
 	        // shut down the connection manager to ensure
@@ -748,14 +886,14 @@ public class SyncplicityConnection {
 	        httpclient.getConnectionManager().shutdown();
 		}
 	}
-		
-	
+
+
 	public MachineData registerNewMachine(MachineData basicMachine) 
 		throws IOException, SyncplicityAuthenticationException {
 		
 		MachineData machine =null;
 
-		DefaultHttpClient httpclient = new DefaultHttpClient();
+		DefaultHttpClient httpclient = wrapClient(new DefaultHttpClient());
 
 		try {
 	        HttpPost httpPost = new HttpPost(REGISTER_MACHINE_URL);
@@ -806,7 +944,7 @@ public class SyncplicityConnection {
 	
 		GlobalFileData globalFileData =null;
 		
-		DefaultHttpClient httpclient = new DefaultHttpClient();
+		DefaultHttpClient httpclient = wrapClient(new DefaultHttpClient());
 	
 		try {
 	        // Request folders
@@ -854,7 +992,7 @@ public class SyncplicityConnection {
 		
 		GlobalFileData[] globalFilesResponse=null;
 	
-		DefaultHttpClient httpclient = new DefaultHttpClient();
+		DefaultHttpClient httpclient = wrapClient(new DefaultHttpClient());
 	
 		try {
 	        // Request folders
@@ -905,7 +1043,7 @@ public class SyncplicityConnection {
 		
 		FolderData[] foldersResponse=null;
 	
-		DefaultHttpClient httpclient = new DefaultHttpClient();
+		DefaultHttpClient httpclient = wrapClient(new DefaultHttpClient());
 	
 		try {
 	        // Request folders
@@ -957,7 +1095,7 @@ public class SyncplicityConnection {
 		
 		FileData[] filesResponse=null;
 	
-		DefaultHttpClient httpclient = new DefaultHttpClient();
+		DefaultHttpClient httpclient = wrapClient(new DefaultHttpClient());
 	
 		try {
 	        // Request folders
@@ -1010,7 +1148,7 @@ public class SyncplicityConnection {
 		
 		QuotaData quota =null;
 		
-		DefaultHttpClient httpclient = new DefaultHttpClient();
+		DefaultHttpClient httpclient = wrapClient(new DefaultHttpClient());
 	
 		try {
 	        // Request folders
@@ -1067,4 +1205,94 @@ public class SyncplicityConnection {
 		httpRequest.setHeader("Authorization", "Token "+authToken);
 		httpRequest.setHeader("Content-Type", "application/json");
 	}
+
+	private static Long getSHA256(InputStream is, StringBuffer sb) 
+		throws IOException, NoSuchAlgorithmException {
+		
+		MessageDigest md = MessageDigest.getInstance("SHA-256");
+		
+		byte[] dataBytes = new byte[1024];
+		
+		Long totalread = 0L;
+		int nread = 0;
+		while ((nread = is.read(dataBytes)) != -1) {
+			md.update(dataBytes, 0, nread);
+			totalread += nread;
+		}
+		
+		byte[] mdbytes = md.digest();
+		
+		//convert the byte to hex format method 1
+        for (int i = 0; i < mdbytes.length; i++) {
+          sb.append(Integer.toString((mdbytes[i] & 0xff) + 0x100, 16).substring(1));
+        }
+        
+        is.reset();
+        
+        return totalread;
+	}
+	
+	private static DefaultHttpClient wrapClient(DefaultHttpClient base) {
+        try {
+            SSLContext ctx = SSLContext.getInstance("TLS");
+            X509TrustManager tm = new X509TrustManager() {
+ 
+                public void checkClientTrusted(X509Certificate[] xcs, String string) throws CertificateException {
+                }
+ 
+                public void checkServerTrusted(X509Certificate[] xcs, String string) throws CertificateException {
+                }
+ 
+                public X509Certificate[] getAcceptedIssuers() {
+                    return null;
+                }
+            };
+            ctx.init(null, new TrustManager[]{tm}, null);
+            SSLSocketFactory ssf = new SSLSocketFactory(ctx);
+            ssf.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+            ClientConnectionManager ccm = base.getConnectionManager();
+            SchemeRegistry sr = ccm.getSchemeRegistry();
+            sr.register(new Scheme("https", ssf, 443));
+            
+            DefaultHttpClient httpclient = new DefaultHttpClient(ccm, base.getParams());
+            ProxySelectorRoutePlanner routePlanner = new ProxySelectorRoutePlanner(
+															httpclient.getConnectionManager().getSchemeRegistry(),
+															ProxySelector.getDefault());
+    		httpclient.setRoutePlanner(routePlanner);
+    		
+    		return httpclient;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return null;
+        }
+    }
+
+	static public String convertStreamToString(InputStream is)
+		throws IOException {
+		/*
+		 * To convert the InputStream to String we use the
+		 * Reader.read(char[] buffer) method. We iterate until the
+		 * Reader return -1 which means there's no more data to
+		 * read. We use the StringWriter class to produce the string.
+		 */
+		if (is != null) {
+		    Writer writer = new StringWriter();
+		
+		    char[] buffer = new char[1024];
+		    try {
+		        Reader reader = new BufferedReader(
+		                new InputStreamReader(is, "UTF-8"));
+		        int n;
+		        while ((n = reader.read(buffer)) != -1) {
+		            writer.write(buffer, 0, n);
+		        }
+		    } finally {
+		        is.close();
+		    }
+		    return writer.toString();
+		} else {        
+		    return "";
+		}
+    }
 }
+

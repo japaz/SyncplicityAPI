@@ -9,26 +9,13 @@ public class LinkData {
 	public Long getSyncPointId() {
 		return SyncPointId;
 	}
-	public void setSyncPointId(Long syncPointId) {
-		SyncPointId = syncPointId;
-	}
 	public String getVirtualPath() {
 		return VirtualPath;
-	}
-	public void setVirtualPath(String virtualPath) {
-		VirtualPath = virtualPath;
 	}
 	public String getToken() {
 		return Token;
 	}
-	public void setToken(String token) {
-		Token = token;
-	}
 	public String getLandingPageUrl() {
 		return LandingPageUrl;
 	}
-	public void setLandingPageUrl(String landingPageUrl) {
-		LandingPageUrl = landingPageUrl;
-	}
-	
 }

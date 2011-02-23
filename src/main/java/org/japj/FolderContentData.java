@@ -1,33 +1,36 @@
 package org.japj;
 
 public class FolderContentData {
-	String SyncpointId;
-	String FolderId;
+	public static final Long STATUS_ADDED = 1L;
+	public static final Long STATUS_REMOVED = 4L;
+
+	Long SyncpointId;
+	Long FolderId;
+	String VirtualPath;
+	String Name;
+	Long Status;
 	FileData[] Files;
 	FolderData[] Folders;
 	
-	public String getSyncpointId() {
+	public Long getSyncpointId() {
 		return SyncpointId;
 	}
-	public void setSyncpointId(String syncpointId) {
-		SyncpointId = syncpointId;
-	}
-	public String getFolderId() {
+	public Long getFolderId() {
 		return FolderId;
 	}
-	public void setFolderId(String folderId) {
-		FolderId = folderId;
+	public String getVirtualPath() {
+		return VirtualPath;
+	}
+	public String getName() {
+		return Name;
+	}
+	public Long getStatus() {
+		return Status;
 	}
 	public FileData[] getFiles() {
 		return Files;
 	}
-	public void setFiles(FileData[] files) {
-		Files = files;
-	}
 	public FolderData[] getFolders() {
 		return Folders;
-	}
-	public void setFolders(FolderData[] folders) {
-		Folders = folders;
 	}
 }

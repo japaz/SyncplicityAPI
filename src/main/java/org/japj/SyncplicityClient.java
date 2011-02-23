@@ -1,8 +1,14 @@
 package org.japj;
 
+import static org.junit.Assert.assertNotNull;
+
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.security.MessageDigest;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Random;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
@@ -44,7 +50,7 @@ public class SyncplicityClient {
 								        .withDescription( "use value for given property" )
 								        .create( "D" );
 		options.addOption(property);
-		
+
 		String user="";
 		String password="";
 		try {
@@ -60,13 +66,15 @@ public class SyncplicityClient {
 			formatter.printHelp( "SyncplicityClient", options );
 			return;
 		}
-		
+
 		SyncplicityConnection connection = new SyncplicityConnection();
         connection.setUser(user);
         connection.setPassword(password);
         
         System.out.println(System.getProperties().get("http.proxyHost"));
         System.out.println(System.getProperties().get("http.proxyPort"));
+        
+        
         
         try {
         	
@@ -111,10 +119,6 @@ public class SyncplicityClient {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-//		} finally {
-//        	connection.endConnection();
-//        }
-        
 	}
 
 }
