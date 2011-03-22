@@ -1,4 +1,4 @@
-package org.japj;
+package org.japj.syncplicityAPI;
 
 public class SyncplicityAuthenticationException extends Exception {
 	// 400 (bad request) errors

@@ -1,4 +1,4 @@
-package org.japj;
+package org.japj.syncplicityAPI.data;
 
 public class LinkData {
 	Long SyncPointId; // The ID of the SyncPoint the file is located in.

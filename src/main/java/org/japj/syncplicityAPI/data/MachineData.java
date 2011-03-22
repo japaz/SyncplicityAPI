@@ -1,4 +1,4 @@
-package org.japj;
+package org.japj.syncplicityAPI.data;
 
 public class MachineData {
 	String Id;

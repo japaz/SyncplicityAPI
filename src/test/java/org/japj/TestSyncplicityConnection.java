@@ -14,6 +14,7 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -24,6 +25,15 @@ import java.util.Properties;
 import java.util.Random;
 
 import org.apache.http.client.ClientProtocolException;
+import org.japj.syncplicityAPI.SyncplicityAuthenticationException;
+import org.japj.syncplicityAPI.SyncplicityConnection;
+import org.japj.syncplicityAPI.data.AuthenticationData;
+import org.japj.syncplicityAPI.data.FileData;
+import org.japj.syncplicityAPI.data.FolderContentData;
+import org.japj.syncplicityAPI.data.GlobalFileData;
+import org.japj.syncplicityAPI.data.OwnerData;
+import org.japj.syncplicityAPI.data.QuotaData;
+import org.japj.syncplicityAPI.data.SynchronizationPointData;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.internal.matchers.IsCollectionContaining;
@@ -31,6 +41,8 @@ import org.junit.internal.matchers.IsCollectionContaining;
 public class TestSyncplicityConnection {
 	private static String DOWNLOAD_TEST_SYNCPOINT_NAME = "Test_Delete.867424937";
 	private static String SYNCPOINT_PREFIX = "Test_Delete.";
+	private static String FILE_CONTENT = "hello";
+	private static String FILE_NAME = "hello.txt";
 	
 	private String user;
 	private String password;
@@ -38,18 +50,39 @@ public class TestSyncplicityConnection {
 	private String syncPointName; 	
 	@Before
 	public void setUp() throws Exception {
+		Properties properties = loadJUnitProperties();
+		  
+		setUserFromProperties(properties);
+		setPasswordFromProperties(properties);
+
+		createNewConnection();
+
+		createSyncPointName();
+	}
+
+	private Properties loadJUnitProperties() throws IOException {
 		InputStream resourceAsStream = getClass().getClassLoader().getResourceAsStream("JUnit.properties");
 		Properties properties = new Properties();
 		properties.load(resourceAsStream);
-		  
-		user = properties.getProperty("user");
-		password = properties.getProperty("password");
+		return properties;
+	}
 
+	private void setUserFromProperties(Properties properties) {
+		user = properties.getProperty("user");
+	}
+
+	private void setPasswordFromProperties(Properties properties) {
+		password = properties.getProperty("password");
+	}
+
+	private void createSyncPointName() {
+		syncPointName = SYNCPOINT_PREFIX + new Random().nextInt();
+	}
+
+	private void createNewConnection() {
 		connection = new SyncplicityConnection();
         connection.setUser(user);
         connection.setPassword(password);
-
-		syncPointName = SYNCPOINT_PREFIX + new Random().nextInt();
 	}
 
 	@Test
@@ -83,7 +116,7 @@ public class TestSyncplicityConnection {
         connection.setPassword(password);
         
         try {
-        	AuthenticationData authenticationData = connection.authenticate();
+        	connection.authenticate();
         	fail("No exception generated with bad password"); 
         } catch (SyncplicityAuthenticationException e) {
         	assertEquals(e.getMessage(), SyncplicityAuthenticationException.EMAIL_OR_PASSWROD_INVALID);
@@ -142,14 +175,53 @@ public class TestSyncplicityConnection {
 	}
 
 	@Test
-	public void testUploadFile()
+	public void testUploadAndDownloadFile()
 		throws ClientProtocolException, IOException, SyncplicityAuthenticationException, NoSuchAlgorithmException {
-		
-		String fileContent = "hello";
-		
+	
         connection.authenticate();
         
-        ArrayList<SynchronizationPointData> syncPoints = new ArrayList<SynchronizationPointData>();
+		SynchronizationPointData syncPoint = null;
+
+		syncPoint = createSyncPointAndReturnIt(syncPoint);
+		
+		assertNotNull(syncPoint);
+		
+		ByteArrayInputStream fileData = createFileContent();
+		
+		connection.uploadFile(fileData, "/"+FILE_NAME, syncPoint.getId());
+		
+		checkFileIsUploadedAndDownloadIt(syncPoint);
+	}
+
+	private void checkFileIsUploadedAndDownloadIt(SynchronizationPointData syncPoint)
+			throws ClientProtocolException, IOException,
+			SyncplicityAuthenticationException {
+		FolderContentData folderContents = connection.getFolderContents(syncPoint.getId(), syncPoint.getRootFolderId(), false);
+		
+		Long fileVersionId = 0L;
+		for (FileData file : folderContents.getFiles()) {
+			if (file.getFilename().equals(FILE_NAME)) {
+				fileVersionId = file.getLatestVersionId();
+			}
+		}
+		
+		OutputStream os=new ByteArrayOutputStream();
+		connection.downloadFile(syncPoint.getId(), fileVersionId, os);
+		
+		assertEquals(FILE_CONTENT, os.toString());
+	}
+
+	private ByteArrayInputStream createFileContent()
+			throws UnsupportedEncodingException {
+		byte[] byteArray = FILE_CONTENT.getBytes("UTF-8"); // choose a charset
+		ByteArrayInputStream fileData = new ByteArrayInputStream(byteArray);
+		return fileData;
+	}
+
+	private SynchronizationPointData createSyncPointAndReturnIt(
+			SynchronizationPointData syncPoint) throws IOException,
+			SyncplicityAuthenticationException, ClientProtocolException {
+		ArrayList<SynchronizationPointData> syncPoints = new ArrayList<SynchronizationPointData>();
         syncPoints.add(new SynchronizationPointData(SynchronizationPointData.SYNCPOINT_TYPE_CUSTOM,
         												syncPointName,
         												new OwnerData(user)));
@@ -158,74 +230,33 @@ public class TestSyncplicityConnection {
 		
 		SynchronizationPointData[] existingSyncPoints = connection.getSynchronizationPoints();
 		
-		SynchronizationPointData syncPoint = null;
 		for (SynchronizationPointData spd : existingSyncPoints) {
 			if (spd.getName().equals(syncPointName)) {
 				syncPoint = spd; 
 				break;
 			}
 		}
-		
-		assertNotNull(syncPoint);
-		
-		byte[] byteArray = fileContent.getBytes("UTF-8"); // choose a charset
-		ByteArrayInputStream fileData = new ByteArrayInputStream(byteArray);
-		
-		String fileName = "hola.txt";
-		GlobalFileData uploadFileData = connection.uploadFile(fileData, "/"+fileName, syncPoint.getId());
-		
-//		GlobalFileData checkFileIsUploaded = connection.CheckFileIsUploaded(uploadFileData.getHash(), uploadFileData.getLength());
-//		assertTrue(checkFileIsUploaded.Stored);
-		
-		
-		FolderContentData folderContents = connection.getFolderContents(syncPoint.getId(), syncPoint.getRootFolderId(), false);
-		
-		Long fileVersionId = 0L;
-		for (FileData file : folderContents.getFiles()) {
-			if (file.getFilename().equals(fileName)) {
-				fileVersionId = file.getLatestVersionId();
-			}
-		}
-		
-		OutputStream os=new ByteArrayOutputStream();
-		connection.downloadFile(syncPoint.getId(), fileVersionId, os);
-		
-		assertEquals(fileContent, os.toString());
-		
-		//connection.deleteSynchronizationPoint(syncPoint.getId());
+		return syncPoint;
 	}
 
-	@Test
-	public void testDownloadFile()
-		throws ClientProtocolException, IOException, SyncplicityAuthenticationException, NoSuchAlgorithmException {
-		
-		String fileName = "hola.txt";
-		
-        connection.authenticate();
-        
-        SynchronizationPointData[] synchronizationPoints = connection.getSynchronizationPoints();
-        
-        SynchronizationPointData syncPoint = null;
-        for (SynchronizationPointData spd : synchronizationPoints) {
-        	if (spd.getName().equals(DOWNLOAD_TEST_SYNCPOINT_NAME)) {
-        		syncPoint = spd;
-        		break;
-        	}
-        }
-        
-        FolderContentData folderContents = connection.getFolderContents(syncPoint.getId(), syncPoint.getRootFolderId(), false);
-        FileData[] files = folderContents.getFiles();
-        for (FileData fd : files) {
-        	if (fd.getFilename().equals(fileName)) {
-        		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        		connection.downloadFile(syncPoint.getId(), fd.LatestVersionId, baos);
-        		
-        		String hola = baos.toString();
-        		assertNotNull(hola);
-        	}
-        }
-	}
-	
+//	@Test
+//	public void testUploadFileWithSubmitFileInformation() 
+//		throws ClientProtocolException, SyncplicityAuthenticationException, IOException, NoSuchAlgorithmException {
+//        connection.authenticate();
+//        
+//		SynchronizationPointData syncPoint = null;
+//
+//		syncPoint = createSyncPointAndReturnIt(syncPoint);
+//		
+//		assertNotNull(syncPoint);
+//		
+//		ByteArrayInputStream fileData = createFileContent();
+//		
+//		connection.uploadFileAndUpdateFileInformation(fileData, "/"+FILE_NAME, syncPoint.getId());
+//		
+//		checkFileIsUploadedAndDownloadIt(syncPoint);
+//	}
+
 	@Test
 	public void testQuotaInformation() 
 		throws ClientProtocolException, SyncplicityAuthenticationException, IOException {

@@ -1,4 +1,4 @@
-package org.japj;
+package org.japj.syncplicityAPI.client;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -18,6 +18,12 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.apache.http.client.ClientProtocolException;
+import org.japj.syncplicityAPI.SyncplicityAuthenticationException;
+import org.japj.syncplicityAPI.SyncplicityConnection;
+import org.japj.syncplicityAPI.data.AuthenticationData;
+import org.japj.syncplicityAPI.data.FolderContentData;
+import org.japj.syncplicityAPI.data.OwnerData;
+import org.japj.syncplicityAPI.data.SynchronizationPointData;
 
 import com.google.gson.Gson;
 

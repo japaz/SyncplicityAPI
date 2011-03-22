@@ -1,4 +1,4 @@
-package org.japj;
+package org.japj.syncplicityAPI.data;
 
 public class QuotaData {
 	Long ActiveBytes; // Number of bytes used.

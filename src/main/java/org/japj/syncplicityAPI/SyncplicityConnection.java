@@ -1,4 +1,4 @@
-package org.japj;
+package org.japj.syncplicityAPI;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -68,6 +68,17 @@ import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
+import org.japj.syncplicityAPI.data.AuthenticationData;
+import org.japj.syncplicityAPI.data.FileData;
+import org.japj.syncplicityAPI.data.FileVersionData;
+import org.japj.syncplicityAPI.data.FolderContentData;
+import org.japj.syncplicityAPI.data.FolderData;
+import org.japj.syncplicityAPI.data.GlobalFileData;
+import org.japj.syncplicityAPI.data.LinkData;
+import org.japj.syncplicityAPI.data.MachineData;
+import org.japj.syncplicityAPI.data.QuotaData;
+import org.japj.syncplicityAPI.data.SharingParticipantData;
+import org.japj.syncplicityAPI.data.SynchronizationPointData;
 
 import com.google.gson.Gson;
 

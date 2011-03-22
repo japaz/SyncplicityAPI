@@ -1,4 +1,4 @@
-package org.japj;
+package org.japj.syncplicityAPI.data;
 
 public class FileData {
 	public static final Long STATUS_ADDED = 1L;
