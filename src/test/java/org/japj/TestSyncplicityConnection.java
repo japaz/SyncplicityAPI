@@ -18,13 +18,16 @@ import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
 
 import org.apache.http.client.ClientProtocolException;
+import org.apache.log4j.helpers.ISO8601DateFormat;
 import org.japj.syncplicityAPI.SyncplicityAuthenticationException;
 import org.japj.syncplicityAPI.SyncplicityConnection;
 import org.japj.syncplicityAPI.data.AuthenticationData;
@@ -188,7 +191,7 @@ public class TestSyncplicityConnection {
 		
 		ByteArrayInputStream fileData = createFileContent();
 		
-		connection.uploadFile(fileData, "/"+FILE_NAME, syncPoint.getId());
+		connection.uploadFile(fileData, "/", FILE_NAME, syncPoint.getId());
 		
 		checkFileIsUploadedAndDownloadIt(syncPoint);
 	}
@@ -239,24 +242,47 @@ public class TestSyncplicityConnection {
 		return syncPoint;
 	}
 
-//	@Test
-//	public void testUploadFileWithSubmitFileInformation() 
-//		throws ClientProtocolException, SyncplicityAuthenticationException, IOException, NoSuchAlgorithmException {
-//        connection.authenticate();
-//        
-//		SynchronizationPointData syncPoint = null;
-//
-//		syncPoint = createSyncPointAndReturnIt(syncPoint);
-//		
-//		assertNotNull(syncPoint);
-//		
-//		ByteArrayInputStream fileData = createFileContent();
-//		
-//		connection.uploadFileAndUpdateFileInformation(fileData, "/"+FILE_NAME, syncPoint.getId());
-//		
-//		checkFileIsUploadedAndDownloadIt(syncPoint);
-//	}
+	@Test
+	public void testUploadFileWithSubmitFileInformation() 
+		throws ClientProtocolException, SyncplicityAuthenticationException, IOException, NoSuchAlgorithmException {
+        connection.authenticate();
+        
+		SynchronizationPointData syncPoint = null;
 
+		syncPoint = createSyncPointAndReturnIt(syncPoint);
+		
+		assertNotNull(syncPoint);
+		
+		ByteArrayInputStream fileData = createFileContent();
+		
+		Date currentDate = new Date();
+		DateFormat dateFormat = new ISO8601DateFormat();
+		String formattedDate = dateFormat.format(currentDate);
+		
+		GlobalFileData uploadedNewFile = connection.uploadNewFile(fileData, "/", FILE_NAME, syncPoint.getId(), formattedDate, 20L);
+		
+		GlobalFileData checkFileIsUploaded = connection.checkFileIsUploaded(uploadedNewFile.getHash(), uploadedNewFile.getLength());
+		
+		assertTrue(checkFileIsUploaded.isStored());
+	}
+
+	@Test
+	public void testSubmitFileInformation() 
+		throws ClientProtocolException, SyncplicityAuthenticationException, IOException {
+		connection.authenticate();
+		
+		SynchronizationPointData syncPoint = null;
+
+		syncPoint = createSyncPointAndReturnIt(syncPoint);
+		
+		assertNotNull(syncPoint);
+		
+		FileData[] files = new FileData[1];
+		files[0] = new FileData("\\", "foo.txt", 5L, "ew9vNC0Ifv0QVg05hAvxLxhTy9xZzUlmUcbf0TTO4=", "2008-10-02T12:00:00Z", "2008-10-02T12:00:00Z", 20L, FileData.FileDataStatus.ADDED);
+		connection.submitFileInformation(files , syncPoint.getId());
+		
+	}
+	
 	@Test
 	public void testQuotaInformation() 
 		throws ClientProtocolException, SyncplicityAuthenticationException, IOException {

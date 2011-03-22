@@ -16,7 +16,7 @@ public class GlobalFileData {
 	public Long getLength() {
 		return Length;
 	}
-	public Boolean getStored() {
+	public Boolean isStored() {
 		return Stored;
 	}
 }
