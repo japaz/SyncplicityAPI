@@ -1,8 +1,12 @@
-package org.japj;
+package org.japj.syncplicityAPI;
 
-import static org.junit.Assert.*;
-import static org.junit.internal.matchers.IsCollectionContaining.*;
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.not;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.junit.internal.matchers.IsCollectionContaining.hasItem;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -12,24 +16,20 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
-import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 import java.util.Properties;
 import java.util.Random;
 
 import org.apache.http.client.ClientProtocolException;
 import org.apache.log4j.helpers.ISO8601DateFormat;
-import org.japj.syncplicityAPI.SyncplicityAuthenticationException;
-import org.japj.syncplicityAPI.SyncplicityConnection;
+import org.japj.syncplicity.test.TestSyncplicity;
 import org.japj.syncplicityAPI.data.AuthenticationData;
 import org.japj.syncplicityAPI.data.FileData;
 import org.japj.syncplicityAPI.data.FolderContentData;
@@ -39,17 +39,13 @@ import org.japj.syncplicityAPI.data.QuotaData;
 import org.japj.syncplicityAPI.data.SynchronizationPointData;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.internal.matchers.IsCollectionContaining;
 
-public class TestSyncplicityConnection {
+public class TestSyncplicityConnection extends TestSyncplicity {
 	private static String DOWNLOAD_TEST_SYNCPOINT_NAME = "Test_Delete.867424937";
 	private static String SYNCPOINT_PREFIX = "Test_Delete.";
 	private static String FILE_CONTENT = "hello";
 	private static String FILE_NAME = "hello.txt";
 	
-	private String user;
-	private String password;
-	private SyncplicityConnection connection;
 	private String syncPointName; 	
 	@Before
 	public void setUp() throws Exception {
@@ -63,29 +59,8 @@ public class TestSyncplicityConnection {
 		createSyncPointName();
 	}
 
-	private Properties loadJUnitProperties() throws IOException {
-		InputStream resourceAsStream = getClass().getClassLoader().getResourceAsStream("JUnit.properties");
-		Properties properties = new Properties();
-		properties.load(resourceAsStream);
-		return properties;
-	}
-
-	private void setUserFromProperties(Properties properties) {
-		user = properties.getProperty("user");
-	}
-
-	private void setPasswordFromProperties(Properties properties) {
-		password = properties.getProperty("password");
-	}
-
 	private void createSyncPointName() {
 		syncPointName = SYNCPOINT_PREFIX + new Random().nextInt();
-	}
-
-	private void createNewConnection() {
-		connection = new SyncplicityConnection();
-        connection.setUser(user);
-        connection.setPassword(password);
 	}
 
 	@Test
