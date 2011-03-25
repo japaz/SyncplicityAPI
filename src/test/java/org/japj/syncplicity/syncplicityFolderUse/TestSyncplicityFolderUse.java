@@ -20,9 +20,9 @@ public class TestSyncplicityFolderUse extends TestSyncplicity  {
 		createNewConnection();
 	}
 
-	@Test
-	public void testEmptyTree() {
-		SyncplicityUtil syncplicityUtil= new SyncplicityUtil(connection);
-		SyncplictyContents syncplicityContents = syncplicityUtil.getAllSyncplicityContents();
-	}
+//	@Test
+//	public void testEmptyTree() {
+//		SyncplicityUtil syncplicityUtil= new SyncplicityUtil(connection);
+//		SyncplictyContents syncplicityContents = syncplicityUtil.getAllSyncplicityContents();
+//	}
 }

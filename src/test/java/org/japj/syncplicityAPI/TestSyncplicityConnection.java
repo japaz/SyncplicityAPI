@@ -21,13 +21,16 @@ import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Properties;
 import java.util.Random;
+import java.util.TimeZone;
 
 import org.apache.http.client.ClientProtocolException;
+import org.apache.log4j.helpers.DateTimeDateFormat;
 import org.apache.log4j.helpers.ISO8601DateFormat;
 import org.japj.syncplicity.test.TestSyncplicity;
 import org.japj.syncplicityAPI.data.AuthenticationData;
@@ -38,6 +41,7 @@ import org.japj.syncplicityAPI.data.OwnerData;
 import org.japj.syncplicityAPI.data.QuotaData;
 import org.japj.syncplicityAPI.data.SynchronizationPointData;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class TestSyncplicityConnection extends TestSyncplicity {
@@ -231,7 +235,9 @@ public class TestSyncplicityConnection extends TestSyncplicity {
 		ByteArrayInputStream fileData = createFileContent();
 		
 		Date currentDate = new Date();
-		DateFormat dateFormat = new ISO8601DateFormat();
+
+		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+		dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 		String formattedDate = dateFormat.format(currentDate);
 		
 		GlobalFileData uploadedNewFile = connection.uploadNewFile(fileData, "/", FILE_NAME, syncPoint.getId(), formattedDate, 20L);
@@ -241,6 +247,7 @@ public class TestSyncplicityConnection extends TestSyncplicity {
 		assertTrue(checkFileIsUploaded.isStored());
 	}
 
+	@Ignore
 	@Test
 	public void testSubmitFileInformation() 
 		throws ClientProtocolException, SyncplicityAuthenticationException, IOException {
@@ -253,7 +260,8 @@ public class TestSyncplicityConnection extends TestSyncplicity {
 		assertNotNull(syncPoint);
 		
 		FileData[] files = new FileData[1];
-		files[0] = new FileData("\\", "foo.txt", 5L, "ew9vNC0Ifv0QVg05hAvxLxhTy9xZzUlmUcbf0TTO4=", "2008-10-02T12:00:00Z", "2008-10-02T12:00:00Z", 20L, FileData.FileDataStatus.ADDED);
+		files[0] = new FileData("\\", "foo.txt", 5L, "ew9vNC0Ifv0QVg05hAvxLxhTy9xZzUlmUcbf0TTO4=", 
+									"2008-10-02T12:00:00Z", "2008-10-02T12:00:00Z", 20L, FileData.FileDataStatus.ADDED);
 		connection.submitFileInformation(files , syncPoint.getId());
 		
 	}

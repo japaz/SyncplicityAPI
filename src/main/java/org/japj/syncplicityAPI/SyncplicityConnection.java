@@ -79,6 +79,7 @@ import org.japj.syncplicityAPI.data.MachineData;
 import org.japj.syncplicityAPI.data.QuotaData;
 import org.japj.syncplicityAPI.data.SharingParticipantData;
 import org.japj.syncplicityAPI.data.SynchronizationPointData;
+import org.japj.syncplicityAPI.data.FileData.FileDataStatus;
 
 import com.google.gson.Gson;
 
@@ -909,17 +910,8 @@ public class SyncplicityConnection {
 			Long syncPriority) throws NoSuchAlgorithmException,
 			UnsupportedEncodingException, ClientProtocolException, IOException,
 			SyncplicityAuthenticationException {
-
-		GlobalFileData uploadedFile = uploadFile(fileData, filePath, fileName,
-				virtualFolderId);
-
-		FileData[] files = new FileData[1];
-		files[0] = new FileData(filePath, fileName, uploadedFile.getLength(),
-				uploadedFile.getHash(), creationTimeUtc, creationTimeUtc,
-				syncPriority, FileData.FileDataStatus.ADDED);
-		submitFileInformation(files, virtualFolderId);
-
-		return uploadedFile;
+		return uploadFile(fileData, filePath, fileName, virtualFolderId, creationTimeUtc, 
+							creationTimeUtc, syncPriority, FileData.FileDataStatus.ADDED);
 	}
 
 	public GlobalFileData uploadUpdatedFile(InputStream fileData, String filePath,
@@ -927,17 +919,26 @@ public class SyncplicityConnection {
 			String lastWriteTimeUtc, Long syncPriority) throws NoSuchAlgorithmException,
 			UnsupportedEncodingException, ClientProtocolException, IOException,
 			SyncplicityAuthenticationException {
-
+		return uploadFile(fileData, filePath, fileName, virtualFolderId, creationTimeUtc, 
+							lastWriteTimeUtc, syncPriority, FileData.FileDataStatus.UPDATED);
+	}
+	
+	private GlobalFileData uploadFile(InputStream fileData, String filePath,
+	String fileName, Long virtualFolderId, String creationTimeUtc,
+	String lastWriteTimeUtc, Long syncPriority, FileDataStatus status) throws NoSuchAlgorithmException,
+	UnsupportedEncodingException, ClientProtocolException, IOException,
+	SyncplicityAuthenticationException {
 		GlobalFileData uploadedFile = uploadFile(fileData, filePath, fileName,
 				virtualFolderId);
 
 		FileData[] files = new FileData[1];
 		files[0] = new FileData(filePath, fileName, uploadedFile.getLength(),
 				uploadedFile.getHash(), creationTimeUtc, lastWriteTimeUtc,
-				syncPriority, FileData.FileDataStatus.UPDATED);
+				syncPriority, status);
 		submitFileInformation(files, virtualFolderId);
 
 		return uploadedFile;
+		
 	}
 
 	public MachineData registerNewMachine(MachineData basicMachine)
