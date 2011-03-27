@@ -798,6 +798,7 @@ public class SyncplicityConnection {
 							int count = is.read(buffer);
 							while (count == 1024) {
 								os.write(buffer);
+								count = is.read(buffer);
 							}
 							if (count != -1) {
 								os.write(buffer, 0, count);

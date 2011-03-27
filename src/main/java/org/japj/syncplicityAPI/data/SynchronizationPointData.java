@@ -91,5 +91,10 @@ public class SynchronizationPointData {
 		}
 	}
 
+	@Override
+	public int hashCode() {
+		assert false : "hashCode not designed";
+		return this.Id.hashCode();
+	}
 	
 }
