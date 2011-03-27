@@ -158,7 +158,7 @@ public class SyncplicityConnection {
 	}
 
 	public AuthenticationData authenticate()
-			throws SyncplicityAuthenticationException, ClientProtocolException,
+			throws SyncplicityException, ClientProtocolException,
 			IOException {
 
 		AuthenticationData[] authenticationData = null;
@@ -212,7 +212,7 @@ public class SyncplicityConnection {
 					entity.consumeContent();
 				}
 			} else {
-				throw new SyncplicityAuthenticationException(response
+				throw new SyncplicityException(response
 						.getStatusLine().getReasonPhrase());
 			}
 		} finally {
@@ -228,7 +228,7 @@ public class SyncplicityConnection {
 
 	public AuthenticationData getTokenData(String token)
 			throws ClientProtocolException, IOException,
-			SyncplicityAuthenticationException {
+			SyncplicityException {
 
 		AuthenticationData authenticationData = null;
 
@@ -263,7 +263,7 @@ public class SyncplicityConnection {
 							AuthenticationData.class);
 				}
 			} else {
-				throw new SyncplicityAuthenticationException(response
+				throw new SyncplicityException(response
 						.getStatusLine().getReasonPhrase());
 			}
 		} finally {
@@ -278,7 +278,7 @@ public class SyncplicityConnection {
 
 	public SynchronizationPointData[] getSynchronizationPoints()
 			throws ClientProtocolException, IOException,
-			SyncplicityAuthenticationException {
+			SyncplicityException {
 
 		SynchronizationPointData[] synchronizationPoints = null;
 
@@ -315,7 +315,7 @@ public class SyncplicityConnection {
 							+ synchronizationPoints.length);
 				}
 			} else {
-				throw new SyncplicityAuthenticationException(response
+				throw new SyncplicityException(response
 						.getStatusLine().getReasonPhrase());
 			}
 		} finally {
@@ -330,7 +330,7 @@ public class SyncplicityConnection {
 
 	public SynchronizationPointData[] addSynchronizationPoint(
 			SynchronizationPointData[] syncPoints) throws IOException,
-			SyncplicityAuthenticationException {
+			SyncplicityException {
 
 		SynchronizationPointData[] synchronizationPoints = null;
 
@@ -371,7 +371,7 @@ public class SyncplicityConnection {
 							+ synchronizationPoints.length);
 				}
 			} else {
-				throw new SyncplicityAuthenticationException(response
+				throw new SyncplicityException(response
 						.getStatusLine().getReasonPhrase());
 			}
 		} finally {
@@ -386,7 +386,7 @@ public class SyncplicityConnection {
 
 	public void deleteSynchronizationPoint(Long syncPointId)
 			throws ClientProtocolException, IOException,
-			SyncplicityAuthenticationException {
+			SyncplicityException {
 
 		DefaultHttpClient httpclient = wrapClient(new DefaultHttpClient());
 
@@ -413,7 +413,7 @@ public class SyncplicityConnection {
 							+ entity.getContentType());
 				}
 			} else {
-				throw new SyncplicityAuthenticationException(response
+				throw new SyncplicityException(response
 						.getStatusLine().getReasonPhrase());
 			}
 		} finally {
@@ -426,7 +426,7 @@ public class SyncplicityConnection {
 
 	public void addSharingParticipant(Long syncPointId,
 			SharingParticipantData sharingParticipant) throws IOException,
-			SyncplicityAuthenticationException {
+			SyncplicityException {
 
 		DefaultHttpClient httpclient = wrapClient(new DefaultHttpClient());
 
@@ -457,7 +457,7 @@ public class SyncplicityConnection {
 							+ entity.getContentType());
 				}
 			} else {
-				throw new SyncplicityAuthenticationException(response
+				throw new SyncplicityException(response
 						.getStatusLine().getReasonPhrase());
 			}
 		} finally {
@@ -470,7 +470,7 @@ public class SyncplicityConnection {
 
 	public SharingParticipantData[] addSharingParticipantBulk(Long syncPointId,
 			SharingParticipantData[] sharingParticipant) throws IOException,
-			SyncplicityAuthenticationException {
+			SyncplicityException {
 		SharingParticipantData[] sharingParticipantCreated = null;
 
 		DefaultHttpClient httpclient = wrapClient(new DefaultHttpClient());
@@ -509,7 +509,7 @@ public class SyncplicityConnection {
 							+ sharingParticipantCreated.length);
 				}
 			} else {
-				throw new SyncplicityAuthenticationException(response
+				throw new SyncplicityException(response
 						.getStatusLine().getReasonPhrase());
 			}
 		} finally {
@@ -524,7 +524,7 @@ public class SyncplicityConnection {
 
 	public void deleteSharingParticipant(Long syncPointId, String emailAddress)
 			throws ClientProtocolException, IOException,
-			SyncplicityAuthenticationException {
+			SyncplicityException {
 
 		DefaultHttpClient httpclient = wrapClient(new DefaultHttpClient());
 
@@ -551,7 +551,7 @@ public class SyncplicityConnection {
 							+ entity.getContentType());
 				}
 			} else {
-				throw new SyncplicityAuthenticationException(response
+				throw new SyncplicityException(response
 						.getStatusLine().getReasonPhrase());
 			}
 		} finally {
@@ -564,7 +564,7 @@ public class SyncplicityConnection {
 
 	public FolderContentData getFolderContents(Long syncPointId, Long folderId,
 			boolean deleted) throws ClientProtocolException, IOException,
-			SyncplicityAuthenticationException {
+			SyncplicityException {
 
 		FolderContentData folderContent = null;
 
@@ -604,7 +604,7 @@ public class SyncplicityConnection {
 					// System.out.println("lenght: " + folderContent.length);
 				}
 			} else {
-				throw new SyncplicityAuthenticationException(response
+				throw new SyncplicityException(response
 						.getStatusLine().getReasonPhrase());
 			}
 		} finally {
@@ -619,7 +619,7 @@ public class SyncplicityConnection {
 
 	public FileVersionData[] getFileVersionList(Long syncPointId,
 			Long latestVersionId) throws ClientProtocolException, IOException,
-			SyncplicityAuthenticationException {
+			SyncplicityException {
 
 		FileVersionData[] fileVersionData = null;
 
@@ -654,7 +654,7 @@ public class SyncplicityConnection {
 					// System.out.println("lenght: " + folderContent.length);
 				}
 			} else {
-				throw new SyncplicityAuthenticationException(response
+				throw new SyncplicityException(response
 						.getStatusLine().getReasonPhrase());
 			}
 		} finally {
@@ -669,7 +669,7 @@ public class SyncplicityConnection {
 
 	public LinkData[] createShareableLink(LinkData[] links)
 			throws ClientProtocolException, IOException,
-			SyncplicityAuthenticationException {
+			SyncplicityException {
 
 		LinkData[] createdLinks = null;
 
@@ -709,7 +709,7 @@ public class SyncplicityConnection {
 					System.out.println("lenght: " + createdLinks.length);
 				}
 			} else {
-				throw new SyncplicityAuthenticationException(response
+				throw new SyncplicityException(response
 						.getStatusLine().getReasonPhrase());
 			}
 		} finally {
@@ -724,7 +724,7 @@ public class SyncplicityConnection {
 
 	public void deleteShareableLink(String token)
 			throws ClientProtocolException, IOException,
-			SyncplicityAuthenticationException {
+			SyncplicityException {
 
 		DefaultHttpClient httpclient = wrapClient(new DefaultHttpClient());
 
@@ -751,7 +751,7 @@ public class SyncplicityConnection {
 							+ entity.getContentType());
 				}
 			} else {
-				throw new SyncplicityAuthenticationException(response
+				throw new SyncplicityException(response
 						.getStatusLine().getReasonPhrase());
 			}
 		} finally {
@@ -764,7 +764,7 @@ public class SyncplicityConnection {
 
 	public void downloadFile(Long syncpointId, Long fileVersionId,
 			OutputStream os) throws ClientProtocolException, IOException,
-			SyncplicityAuthenticationException {
+			SyncplicityException {
 
 		HttpClient httpclient = wrapClient(new DefaultHttpClient());
 
@@ -808,7 +808,7 @@ public class SyncplicityConnection {
 					}
 				}
 			} else {
-				throw new SyncplicityAuthenticationException(response
+				throw new SyncplicityException(response
 						.getStatusLine().getReasonPhrase());
 			}
 		} finally {
@@ -819,16 +819,15 @@ public class SyncplicityConnection {
 		}
 	}
 
-	public GlobalFileData uploadFile(InputStream fileData, String filePath,
-			String fileName, Long virtualFolderId) throws IOException,
-			SyncplicityAuthenticationException, NoSuchAlgorithmException {
+	public GlobalFileData uploadFile(InputStream fileStream, FileData fileData, Long virtualFolderId) throws IOException,
+			SyncplicityException, NoSuchAlgorithmException {
 
-		checkUploadFileParameters(fileData, filePath, virtualFolderId);
+		checkUploadFileParameters(fileStream, fileData, virtualFolderId);
 
 		HttpClient httpclient = wrapClient(new DefaultHttpClient());
 
 		try {
-			return uploadFileToHttpClient(fileData, filePath, fileName,
+			return uploadFileToHttpClient(fileStream, fileData,
 					virtualFolderId, httpclient);
 		} finally {
 			// When HttpClient instance is no longer needed,
@@ -839,24 +838,24 @@ public class SyncplicityConnection {
 	}
 
 	private void checkUploadFileParameters(InputStream fileData,
-			String filePath, Long virtualFolderId) {
+			FileData filePath, Long virtualFolderId) {
 		if (fileData == null || filePath == null || virtualFolderId == null) {
 			throw new java.lang.IllegalArgumentException();
 		}
 	}
 
-	private GlobalFileData uploadFileToHttpClient(InputStream fileData,
-			String filePath, String fileName, Long virtualFolderId,
+	private GlobalFileData uploadFileToHttpClient(InputStream fileStream,
+			FileData fileData, Long virtualFolderId,
 			HttpClient httpclient) throws IOException,
 			NoSuchAlgorithmException, UnsupportedEncodingException,
-			ClientProtocolException, SyncplicityAuthenticationException {
+			ClientProtocolException, SyncplicityException {
 		HttpPost httppost = new HttpPost(UPLOAD_FILE_URL);
 
 		StringBuffer sha256 = new StringBuffer();
-		final long fileLength = getSHA256(fileData, sha256);
+		final long fileLength = getSHA256(fileStream, sha256);
 
-		MultipartEntity uploadEntity = createMultipartEntity(fileData, filePath
-				+ fileName, virtualFolderId, sha256);
+		MultipartEntity uploadEntity = createMultipartEntity(fileStream, fileData, 
+																virtualFolderId, sha256);
 
 		httppost.setEntity(uploadEntity);
 		System.out
@@ -878,71 +877,85 @@ public class SyncplicityConnection {
 						+ entity.getContentType());
 			}
 		} else {
-			throw new SyncplicityAuthenticationException(response
+			throw new SyncplicityException(response
 					.getStatusLine().getReasonPhrase());
 		}
 
 		return new GlobalFileData(sha256.toString(), fileLength);
 	}
 
-	private MultipartEntity createMultipartEntity(InputStream fileData,
-			String filePath, Long virtualFolderId, StringBuffer sha256)
+	private MultipartEntity createMultipartEntity(InputStream fileStream,
+			FileData fileData, Long virtualFolderId, StringBuffer sha256)
 			throws UnsupportedEncodingException {
 		MultipartEntity uploadEntity = new MultipartEntity(
 				HttpMultipartMode.BROWSER_COMPATIBLE);
 
-		// To don't set the body length
-		uploadEntity.addPart("fileData",
-				new InputStreamBody(fileData, filePath));
 
-		uploadEntity.addPart("filepath",
-				new StringBody(filePath, Charset.forName("UTF-8")));
+		if (fileData.getFilename() != null && fileData.getVirtualPath() != null) {
+			String filePath = fileData.getVirtualPath() + fileData.getFilename(); 
+			uploadEntity.addPart("fileData",
+					new InputStreamBody(fileStream, filePath));
+
+			uploadEntity.addPart("filepath",
+					new StringBody(filePath, Charset.forName("UTF-8")));
+		}
 		uploadEntity.addPart("sha256", new StringBody(sha256.toString(),
 				Charset.forName("UTF-8")));
 		uploadEntity.addPart("sessionKey", new StringBody(authToken));
 		uploadEntity.addPart("virtualFolderId",
 				new StringBody(String.valueOf(virtualFolderId)));
+		
+		if (fileData.getCreationTimeUtc() != null) {
+			uploadEntity.addPart("creationTimeUtc", new StringBody(fileData.getCreationTimeUtc(),
+					Charset.forName("UTF-8")));
+		}
+		if (fileData.getLastWriteTimeUtc() != null) {
+			uploadEntity.addPart("lastWriteTimeUtc", new StringBody(fileData.getLastWriteTimeUtc(),
+					Charset.forName("UTF-8")));
+		}
+		if (fileData.getSyncPriority()!= null) {
+			uploadEntity.addPart("syncPriority", new StringBody(String.valueOf(fileData.getSyncPriority()),
+					Charset.forName("UTF-8")));
+		}
 		return uploadEntity;
 	}
 
-	public GlobalFileData uploadNewFile(InputStream fileData, String filePath,
-			String fileName, Long virtualFolderId, String creationTimeUtc,
-			Long syncPriority) throws NoSuchAlgorithmException,
-			UnsupportedEncodingException, ClientProtocolException, IOException,
-			SyncplicityAuthenticationException {
-		return uploadFile(fileData, filePath, fileName, virtualFolderId, creationTimeUtc, 
-							creationTimeUtc, syncPriority, FileData.FileDataStatus.ADDED);
-	}
+//	public GlobalFileData uploadNewFile(InputStream fileData, String filePath,
+//			String fileName, Long virtualFolderId, String creationTimeUtc,
+//			Long syncPriority) throws NoSuchAlgorithmException,
+//			UnsupportedEncodingException, ClientProtocolException, IOException,
+//			SyncplicityException {
+//		return uploadFile(fileData, filePath, fileName, virtualFolderId, creationTimeUtc, 
+//							creationTimeUtc, syncPriority, FileData.FileDataStatus.ADDED);
+//	}
 
-	public GlobalFileData uploadUpdatedFile(InputStream fileData, String filePath,
-			String fileName, Long virtualFolderId, String creationTimeUtc,
-			String lastWriteTimeUtc, Long syncPriority) throws NoSuchAlgorithmException,
-			UnsupportedEncodingException, ClientProtocolException, IOException,
-			SyncplicityAuthenticationException {
-		return uploadFile(fileData, filePath, fileName, virtualFolderId, creationTimeUtc, 
-							lastWriteTimeUtc, syncPriority, FileData.FileDataStatus.UPDATED);
-	}
-	
-	private GlobalFileData uploadFile(InputStream fileData, String filePath,
-	String fileName, Long virtualFolderId, String creationTimeUtc,
-	String lastWriteTimeUtc, Long syncPriority, FileDataStatus status) throws NoSuchAlgorithmException,
-	UnsupportedEncodingException, ClientProtocolException, IOException,
-	SyncplicityAuthenticationException {
-		GlobalFileData uploadedFile = uploadFile(fileData, filePath, fileName,
-				virtualFolderId);
-
-		FileData[] files = new FileData[1];
-		files[0] = new FileData(filePath, fileName, uploadedFile.getLength(),
-				uploadedFile.getHash(), creationTimeUtc, lastWriteTimeUtc,
-				syncPriority, status);
-		submitFileInformation(files, virtualFolderId);
-
-		return uploadedFile;
-		
-	}
+//	public GlobalFileData uploadUpdatedFile(InputStream fileData, String filePath,
+//			String fileName, Long virtualFolderId, String creationTimeUtc,
+//			String lastWriteTimeUtc, Long syncPriority) throws NoSuchAlgorithmException,
+//			UnsupportedEncodingException, ClientProtocolException, IOException,
+//			SyncplicityException {
+//		return uploadFile(fileData, filePath, fileName, virtualFolderId, creationTimeUtc, 
+//							lastWriteTimeUtc, syncPriority, FileData.FileDataStatus.UPDATED);
+//	}
+//	
+//	private GlobalFileData uploadFile(InputStream fileStream, FileData fileData, Long virtualFolderId, String creationTimeUtc,
+//	String lastWriteTimeUtc, Long syncPriority, FileDataStatus status) throws NoSuchAlgorithmException,
+//	UnsupportedEncodingException, ClientProtocolException, IOException,
+//	SyncplicityException {
+//		GlobalFileData uploadedFile = uploadFile(fileStream, fileData, virtualFolderId);
+//
+//		FileData[] files = new FileData[1];
+//		files[0] = new FileData(filePath, fileName, uploadedFile.getLength(),
+//				uploadedFile.getHash(), creationTimeUtc, lastWriteTimeUtc,
+//				syncPriority, status);
+//		submitFileInformation(files, virtualFolderId);
+//
+//		return uploadedFile;
+//		
+//	}
 
 	public MachineData registerNewMachine(MachineData basicMachine)
-			throws IOException, SyncplicityAuthenticationException {
+			throws IOException, SyncplicityException {
 
 		MachineData machine = null;
 
@@ -983,7 +996,7 @@ public class SyncplicityConnection {
 					// System.out.println("lenght: " + folderContent.length);
 				}
 			} else {
-				throw new SyncplicityAuthenticationException(response
+				throw new SyncplicityException(response
 						.getStatusLine().getReasonPhrase());
 			}
 
@@ -997,58 +1010,58 @@ public class SyncplicityConnection {
 		return machine;
 	}
 
-	public GlobalFileData checkFileIsUploaded(String hash, Long fileLength)
-			throws ClientProtocolException, IOException,
-			SyncplicityAuthenticationException {
-
-		GlobalFileData globalFileData = null;
-
-		DefaultHttpClient httpclient = wrapClient(new DefaultHttpClient());
-
-		try {
-			// Request folders
-			HttpGet httpget = new HttpGet(new Formatter().format(
-					CHECK_FILE_IS_UPLOADED_URL, hash, fileLength).toString());
-
-			setHeaders(httpget);
-
-			System.out.println("executing request" + httpget.getRequestLine());
-
-			HttpResponse response = httpclient.execute(httpget);
-			HttpEntity entity = response.getEntity();
-
-			System.out.println("----------------------------------------");
-			System.out.println(response.getStatusLine());
-
-			if (response.getStatusLine().getStatusCode() < 400) {
-				if (entity != null) {
-					System.out.println("Response content length: "
-							+ entity.getContentLength());
-					System.out.println("Response content Type: "
-							+ entity.getContentType());
-
-					String responseContent = EntityUtils.toString(entity);
-					System.out.println("Response content: " + responseContent);
-
-					globalFileData = new Gson().fromJson(responseContent,
-							GlobalFileData.class);
-				}
-			} else {
-				throw new SyncplicityAuthenticationException(response
-						.getStatusLine().getReasonPhrase());
-			}
-		} finally {
-			// When HttpClient instance is no longer needed,
-			// shut down the connection manager to ensure
-			// immediate deallocation of all system resources
-			httpclient.getConnectionManager().shutdown();
-		}
-
-		return globalFileData;
-	}
+//	public GlobalFileData checkFileIsUploaded(String hash, Long fileLength)
+//			throws ClientProtocolException, IOException,
+//			SyncplicityException {
+//
+//		GlobalFileData globalFileData = null;
+//
+//		DefaultHttpClient httpclient = wrapClient(new DefaultHttpClient());
+//
+//		try {
+//			// Request folders
+//			HttpGet httpget = new HttpGet(new Formatter().format(
+//					CHECK_FILE_IS_UPLOADED_URL, hash, fileLength).toString());
+//
+//			setHeaders(httpget);
+//
+//			System.out.println("executing request" + httpget.getRequestLine());
+//
+//			HttpResponse response = httpclient.execute(httpget);
+//			HttpEntity entity = response.getEntity();
+//
+//			System.out.println("----------------------------------------");
+//			System.out.println(response.getStatusLine());
+//
+//			if (response.getStatusLine().getStatusCode() < 400) {
+//				if (entity != null) {
+//					System.out.println("Response content length: "
+//							+ entity.getContentLength());
+//					System.out.println("Response content Type: "
+//							+ entity.getContentType());
+//
+//					String responseContent = EntityUtils.toString(entity);
+//					System.out.println("Response content: " + responseContent);
+//
+//					globalFileData = new Gson().fromJson(responseContent,
+//							GlobalFileData.class);
+//				}
+//			} else {
+//				throw new SyncplicityException(response
+//						.getStatusLine().getReasonPhrase());
+//			}
+//		} finally {
+//			// When HttpClient instance is no longer needed,
+//			// shut down the connection manager to ensure
+//			// immediate deallocation of all system resources
+//			httpclient.getConnectionManager().shutdown();
+//		}
+//
+//		return globalFileData;
+//	}
 
 	public GlobalFileData[] checkFilesAreUploaded(GlobalFileData[] globalFiles)
-			throws IOException, SyncplicityAuthenticationException {
+			throws IOException, SyncplicityException {
 
 		GlobalFileData[] globalFilesResponse = null;
 
@@ -1089,7 +1102,7 @@ public class SyncplicityConnection {
 					System.out.println("lenght: " + globalFilesResponse.length);
 				}
 			} else {
-				throw new SyncplicityAuthenticationException(response
+				throw new SyncplicityException(response
 						.getStatusLine().getReasonPhrase());
 			}
 		} finally {
@@ -1104,7 +1117,7 @@ public class SyncplicityConnection {
 
 	public FolderData[] submitFolderInformation(FolderData[] folders,
 			Long syncpointId) throws IOException,
-			SyncplicityAuthenticationException {
+			SyncplicityException {
 
 		FolderData[] foldersResponse = null;
 
@@ -1145,7 +1158,7 @@ public class SyncplicityConnection {
 					System.out.println("lenght: " + foldersResponse.length);
 				}
 			} else {
-				throw new SyncplicityAuthenticationException(response
+				throw new SyncplicityException(response
 						.getStatusLine().getReasonPhrase());
 			}
 		} finally {
@@ -1159,7 +1172,7 @@ public class SyncplicityConnection {
 	}
 
 	public FileData[] submitFileInformation(FileData[] files, Long syncpointId)
-			throws IOException, SyncplicityAuthenticationException {
+			throws IOException, SyncplicityException {
 
 		FileData[] filesResponse = null;
 
@@ -1200,7 +1213,7 @@ public class SyncplicityConnection {
 					System.out.println("lenght: " + filesResponse.length);
 				}
 			} else {
-				throw new SyncplicityAuthenticationException(response
+				throw new SyncplicityException(response
 						.getStatusLine().getReasonPhrase());
 			}
 		} finally {
@@ -1214,7 +1227,7 @@ public class SyncplicityConnection {
 	}
 
 	public QuotaData getQuotaInformation() throws ClientProtocolException,
-			IOException, SyncplicityAuthenticationException {
+			IOException, SyncplicityException {
 
 		QuotaData quota = null;
 
@@ -1248,7 +1261,7 @@ public class SyncplicityConnection {
 							QuotaData.class);
 				}
 			} else {
-				throw new SyncplicityAuthenticationException(response
+				throw new SyncplicityException(response
 						.getStatusLine().getReasonPhrase());
 			}
 		} finally {

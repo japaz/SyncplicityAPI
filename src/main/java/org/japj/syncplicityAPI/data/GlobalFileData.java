@@ -5,6 +5,10 @@ public class GlobalFileData {
     Long Length;
     Boolean Stored;
     
+    GlobalFileData() {
+    	
+    }
+    
     public GlobalFileData(String hash, Long length) {
     	Hash = hash;
     	Length = length;

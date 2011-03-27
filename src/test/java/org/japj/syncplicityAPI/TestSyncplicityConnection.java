@@ -30,8 +30,6 @@ import java.util.Random;
 import java.util.TimeZone;
 
 import org.apache.http.client.ClientProtocolException;
-import org.apache.log4j.helpers.DateTimeDateFormat;
-import org.apache.log4j.helpers.ISO8601DateFormat;
 import org.japj.syncplicity.test.TestSyncplicity;
 import org.japj.syncplicityAPI.data.AuthenticationData;
 import org.japj.syncplicityAPI.data.FileData;
@@ -69,7 +67,7 @@ public class TestSyncplicityConnection extends TestSyncplicity {
 
 	@Test
 	public void testAuthentication() 
-		throws ClientProtocolException, SyncplicityAuthenticationException, IOException {
+		throws ClientProtocolException, SyncplicityException, IOException {
 		
 		AuthenticationData authenticationData = connection.authenticate();
 		assertNotNull(authenticationData.getId());
@@ -100,14 +98,14 @@ public class TestSyncplicityConnection extends TestSyncplicity {
         try {
         	connection.authenticate();
         	fail("No exception generated with bad password"); 
-        } catch (SyncplicityAuthenticationException e) {
-        	assertEquals(e.getMessage(), SyncplicityAuthenticationException.EMAIL_OR_PASSWROD_INVALID);
+        } catch (SyncplicityException e) {
+        	assertEquals(e.getMessage(), SyncplicityException.EMAIL_OR_PASSWROD_INVALID);
         }
 	}
 
 	@Test
 	public void testRemoveAllSyncPointsExceptOne() 
-		throws ClientProtocolException, SyncplicityAuthenticationException, IOException {
+		throws ClientProtocolException, SyncplicityException, IOException {
 		
         connection.authenticate();
         
@@ -132,7 +130,7 @@ public class TestSyncplicityConnection extends TestSyncplicity {
 
 	@Test
 	public void testCreationModificationSyncPoints()
-		throws ClientProtocolException, IOException, SyncplicityAuthenticationException {
+		throws ClientProtocolException, IOException, SyncplicityException {
 		
         connection.authenticate();
         
@@ -158,7 +156,7 @@ public class TestSyncplicityConnection extends TestSyncplicity {
 
 	@Test
 	public void testUploadAndDownloadFile()
-		throws ClientProtocolException, IOException, SyncplicityAuthenticationException, NoSuchAlgorithmException {
+		throws ClientProtocolException, IOException, SyncplicityException, NoSuchAlgorithmException {
 	
         connection.authenticate();
         
@@ -168,16 +166,31 @@ public class TestSyncplicityConnection extends TestSyncplicity {
 		
 		assertNotNull(syncPoint);
 		
-		ByteArrayInputStream fileData = createFileContent();
+		ByteArrayInputStream fileStream = createFileContent();
+
+		String formattedDate = getCurrentDataFormatted();
 		
-		connection.uploadFile(fileData, "/", FILE_NAME, syncPoint.getId());
+		FileData fileData = new FileData("/", FILE_NAME, formattedDate, formattedDate, 20L);
 		
-		checkFileIsUploadedAndDownloadIt(syncPoint);
+		GlobalFileData uploadedFile = connection.uploadFile(fileStream, fileData, syncPoint.getId());
+		
+		checkFileIsUploadedAndDownloadIt(syncPoint, uploadedFile);
 	}
 
-	private void checkFileIsUploadedAndDownloadIt(SynchronizationPointData syncPoint)
+	private void checkFileIsUploadedAndDownloadIt(SynchronizationPointData syncPoint, GlobalFileData uploadedFile)
 			throws ClientProtocolException, IOException,
-			SyncplicityAuthenticationException {
+			SyncplicityException {
+		
+		GlobalFileData[] globalFiles = {uploadedFile};
+		GlobalFileData[] checkFilesAreUploaded = connection.checkFilesAreUploaded(globalFiles);
+		
+		assertEquals(1, checkFilesAreUploaded.length);
+		
+		for (GlobalFileData globalFileData : checkFilesAreUploaded) {
+			assertTrue(globalFileData.isStored());
+		}
+		
+		
 		FolderContentData folderContents = connection.getFolderContents(syncPoint.getId(), syncPoint.getRootFolderId(), false);
 		
 		Long fileVersionId = 0L;
@@ -202,7 +215,7 @@ public class TestSyncplicityConnection extends TestSyncplicity {
 
 	private SynchronizationPointData createSyncPointAndReturnIt(
 			SynchronizationPointData syncPoint) throws IOException,
-			SyncplicityAuthenticationException, ClientProtocolException {
+			SyncplicityException, ClientProtocolException {
 		ArrayList<SynchronizationPointData> syncPoints = new ArrayList<SynchronizationPointData>();
         syncPoints.add(new SynchronizationPointData(SynchronizationPointData.SYNCPOINT_TYPE_CUSTOM,
         												syncPointName,
@@ -221,36 +234,19 @@ public class TestSyncplicityConnection extends TestSyncplicity {
 		return syncPoint;
 	}
 
-	@Test
-	public void testUploadFileWithSubmitFileInformation() 
-		throws ClientProtocolException, SyncplicityAuthenticationException, IOException, NoSuchAlgorithmException {
-        connection.authenticate();
-        
-		SynchronizationPointData syncPoint = null;
-
-		syncPoint = createSyncPointAndReturnIt(syncPoint);
-		
-		assertNotNull(syncPoint);
-		
-		ByteArrayInputStream fileData = createFileContent();
-		
+	private String getCurrentDataFormatted() {
 		Date currentDate = new Date();
 
 		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 		dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 		String formattedDate = dateFormat.format(currentDate);
-		
-		GlobalFileData uploadedNewFile = connection.uploadNewFile(fileData, "/", FILE_NAME, syncPoint.getId(), formattedDate, 20L);
-		
-		GlobalFileData checkFileIsUploaded = connection.checkFileIsUploaded(uploadedNewFile.getHash(), uploadedNewFile.getLength());
-		
-		assertTrue(checkFileIsUploaded.isStored());
+		return formattedDate;
 	}
 
 	@Ignore
 	@Test
 	public void testSubmitFileInformation() 
-		throws ClientProtocolException, SyncplicityAuthenticationException, IOException {
+		throws ClientProtocolException, SyncplicityException, IOException {
 		connection.authenticate();
 		
 		SynchronizationPointData syncPoint = null;
@@ -268,7 +264,7 @@ public class TestSyncplicityConnection extends TestSyncplicity {
 	
 	@Test
 	public void testQuotaInformation() 
-		throws ClientProtocolException, SyncplicityAuthenticationException, IOException {
+		throws ClientProtocolException, SyncplicityException, IOException {
 		
 		connection.authenticate();
 		

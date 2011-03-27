@@ -1,6 +1,6 @@
 package org.japj.syncplicityAPI;
 
-public class SyncplicityAuthenticationException extends Exception {
+public class SyncplicityException extends Exception {
 	// 400 (bad request) errors
 	public static final String INVALID_BASIC_AUTH = "Invalid Basic Auth Credentials"; //	Email and/or password were missing or were badly formatted.
 	public static final String ONLY_ONE_MACHINE_ALLOWED = "Only One Machine Registration Allowed"; // More than one <Machine> entity was present in the request.
@@ -29,7 +29,7 @@ public class SyncplicityAuthenticationException extends Exception {
      * The cause is not initialized, and may subsequently be initialized by a
      * call to {@link #initCause}.
      */
-    public SyncplicityAuthenticationException() {
+    public SyncplicityException() {
 	super();
     }
 
@@ -41,7 +41,7 @@ public class SyncplicityAuthenticationException extends Exception {
      * @param   message   the detail message. The detail message is saved for 
      *          later retrieval by the {@link #getMessage()} method.
      */
-    public SyncplicityAuthenticationException(String message) {
+    public SyncplicityException(String message) {
 	super(message);
     }
 
@@ -59,7 +59,7 @@ public class SyncplicityAuthenticationException extends Exception {
      *         unknown.)
      * @since  1.4
      */
-    public SyncplicityAuthenticationException(String message, Throwable cause) {
+    public SyncplicityException(String message, Throwable cause) {
         super(message, cause);
     }
 
@@ -77,7 +77,7 @@ public class SyncplicityAuthenticationException extends Exception {
      *         unknown.)
      * @since  1.4
      */
-    public SyncplicityAuthenticationException(Throwable cause) {
+    public SyncplicityException(Throwable cause) {
         super(cause);
     }
 	

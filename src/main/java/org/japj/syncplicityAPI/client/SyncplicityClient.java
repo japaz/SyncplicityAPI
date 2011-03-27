@@ -18,7 +18,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.apache.http.client.ClientProtocolException;
-import org.japj.syncplicityAPI.SyncplicityAuthenticationException;
+import org.japj.syncplicityAPI.SyncplicityException;
 import org.japj.syncplicityAPI.SyncplicityConnection;
 import org.japj.syncplicityAPI.data.AuthenticationData;
 import org.japj.syncplicityAPI.data.FolderContentData;
@@ -115,7 +115,7 @@ public class SyncplicityClient {
 	        	}
 	        }
 	        
-        } catch (SyncplicityAuthenticationException e) {
+        } catch (SyncplicityException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (ClientProtocolException e) {
