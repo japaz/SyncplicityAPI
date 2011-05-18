@@ -21,4 +21,14 @@ public class MachineData {
 	public String getModel() {
 		return Model;
 	}
+	private MachineData() {
+		
+	}
+	
+	public MachineData(String name, String systemName, String systemVersion, String model) {
+		Name = name;
+		SystemName = systemName;
+		SystemVersion = systemVersion;
+		Model = model;
+	}
 }

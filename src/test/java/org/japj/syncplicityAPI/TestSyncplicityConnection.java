@@ -35,9 +35,12 @@ import org.japj.syncplicityAPI.data.AuthenticationData;
 import org.japj.syncplicityAPI.data.FileData;
 import org.japj.syncplicityAPI.data.FolderContentData;
 import org.japj.syncplicityAPI.data.GlobalFileData;
+import org.japj.syncplicityAPI.data.MachineData;
 import org.japj.syncplicityAPI.data.OwnerData;
 import org.japj.syncplicityAPI.data.QuotaData;
+import org.japj.syncplicityAPI.data.SharingParticipantData;
 import org.japj.syncplicityAPI.data.SynchronizationPointData;
+import org.japj.syncplicityAPI.data.UserData;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -45,8 +48,10 @@ import org.junit.Test;
 public class TestSyncplicityConnection extends TestSyncplicity {
 	private static String DOWNLOAD_TEST_SYNCPOINT_NAME = "Test_Delete.867424937";
 	private static String SYNCPOINT_PREFIX = "Test_Delete.";
+	private static String MACHINE_PREFIX = "Test_Delete.";
 	private static String FILE_CONTENT = "hello";
 	private static String FILE_NAME = "hello.txt";
+	private static Random random = new Random();
 	
 	private String syncPointName; 	
 	@Before
@@ -62,7 +67,7 @@ public class TestSyncplicityConnection extends TestSyncplicity {
 	}
 
 	private void createSyncPointName() {
-		syncPointName = SYNCPOINT_PREFIX + new Random().nextInt();
+		syncPointName = SYNCPOINT_PREFIX + random.nextInt();
 	}
 
 	@Test
@@ -271,6 +276,68 @@ public class TestSyncplicityConnection extends TestSyncplicity {
 		QuotaData quotaInformation = connection.getQuotaInformation();
 		assertNotNull(quotaInformation);		
 	}
+	
+	@Ignore
+	@Test
+	public void testRegisterNewMachine() 
+		throws ClientProtocolException, SyncplicityException, IOException {
+		
+		String machineName = "A"; // MACHINE_PREFIX + random.nextInt();
+		String systemName = "Windows";
+		String systemVersion = "1.0.23";
+		String model = "PC";
+		
+		MachineData machine = new MachineData(machineName, systemName, systemVersion, model);
+		
+		MachineData newMachine = connection.registerNewMachine(machine);
+		
+		assertEquals(machineName, newMachine.getName());
+		assertEquals(systemName, newMachine.getSystemName());
+		assertEquals(systemVersion, newMachine.getSystemVersion());
+		assertEquals(model, newMachine.getModel());
+	}
+	
+	@Test
+	public void testAddSharingParticipant() 
+		throws ClientProtocolException, SyncplicityException, IOException {
+		
+        connection.authenticate();
+        
+        ArrayList<SynchronizationPointData> syncPoints = new ArrayList<SynchronizationPointData>();
+        syncPoints.add(new SynchronizationPointData(SynchronizationPointData.SYNCPOINT_TYPE_CUSTOM,
+        												syncPointName,
+        												new OwnerData(user)));
+        
+
+		
+		SynchronizationPointData[] addedSynchronizationPoints = connection.addSynchronizationPoint(syncPoints.toArray(new SynchronizationPointData[syncPoints.size()]));
+		Long syncPointId = addedSynchronizationPoints[0].getId();
+		SharingParticipantData sharingParticipant = new SharingParticipantData("null@syncplicity.com", SharingParticipantData.PERMISSION_COLLABORATOR);
+		connection.addSharingParticipant(syncPointId, sharingParticipant);
+	}
+	
+	@Test
+	public void testAddSharingParticipantInBulk() 
+		throws ClientProtocolException, SyncplicityException, IOException {
+	
+		connection.authenticate();
+        ArrayList<SynchronizationPointData> syncPoints = new ArrayList<SynchronizationPointData>();
+        syncPoints.add(new SynchronizationPointData(SynchronizationPointData.SYNCPOINT_TYPE_CUSTOM,
+        												syncPointName,
+        												new OwnerData(user)));
+        
+
+		
+		SynchronizationPointData[] addedSynchronizationPoints = connection.addSynchronizationPoint(syncPoints.toArray(new SynchronizationPointData[syncPoints.size()]));
+		Long syncPointId = addedSynchronizationPoints[0].getId();
+
+		ArrayList<SharingParticipantData> sharingParticipants = new ArrayList<SharingParticipantData>();
+		sharingParticipants.add(new SharingParticipantData(syncPointId, new UserData("ondrej@syncplicity.com"), SharingParticipantData.PERMISSION_COLLABORATOR, new UserData("e1@mail.com")));
+		
+		connection.addSharingParticipantBulk(sharingParticipants.toArray(new SharingParticipantData[sharingParticipants.size()]));
+		
+	}
+
 	
     static public String convertStreamToString(InputStream is)
     	throws IOException {

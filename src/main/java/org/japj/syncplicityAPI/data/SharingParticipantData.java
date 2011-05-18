@@ -13,6 +13,21 @@ public class SharingParticipantData {
 	UserData Inviter;
 	UserData User;
 	
+	private SharingParticipantData() {
+		
+	}
+	public SharingParticipantData(String emailAddress, String permission) {
+		EmailAddress = emailAddress;
+		Permission = permission;
+	}
+	public SharingParticipantData(Long syncPointId, UserData inviter, 
+			String permission, UserData user) {
+		SyncPointId = syncPointId;
+		Inviter = inviter;
+		Permission = permission;
+		User = user;
+		
+	}
 	public String getEmailAddress() {
 		return EmailAddress;
 	}

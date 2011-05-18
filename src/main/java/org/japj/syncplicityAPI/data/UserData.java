@@ -21,4 +21,11 @@ public class UserData {
 	public String getEmailAddress() {
 		return EmailAddress;
 	}
+	
+	private UserData() {
+		
+	}
+	public UserData(String emailAddress) {
+		EmailAddress = emailAddress;
+	}
 }

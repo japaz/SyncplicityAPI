@@ -97,13 +97,12 @@ public class SyncplicityConnection {
 	private static final String FOLDER_CONTENT_URL = "https://xml.syncplicity.com/1.1/sync/folder.svc/%s/folder/%s?include=%s";
 	private static final String FILE_VERSION_LIST_URL = "https://xml.syncplicity.com/1.1/sync/versions.svc/%s/file/%s/versions";
 
-	private static final String REGISTER_MACHINE_URL = "https://xml.syncplicity.com/1.1/sync/folder.svc/";
+	private static final String REGISTER_MACHINE_URL = "https://xml.syncplicity.com/1.1/auth/machines.svc/";
 	private static final String CREATE_SHAREABLE_LINK_URL = "https://xml.syncplicity.com/1.1/syncpoint/links.svc/";
 	private static final String DEL_SHAREABLE_LINK_URL = "https://xml.syncplicity.com/1.1/syncpoint/link.svc/%s";
 
 	private static final String DOWNLOAD_FILE_URL = "https://datastore.syncplicity.com/retrieveFile.php?sessionKey=%s&vToken=%s-%s";
 	private static final String UPLOAD_FILE_URL = "https://datastore.syncplicity.com/saveFile.php";
-	private static final String CHECK_FILE_IS_UPLOADED_URL = "https://xml.syncplicity.com/1.1/sync/global_file.svc/%s/%s";
 	private static final String CHECK_FILES_ARE_UPLOADED_URL = "https://xml.syncplicity.com/1.1/sync/global_files.svc/";
 	private static final String SUBMIT_FOLDER_INFORMATION_URL = "https://xml.syncplicity.com/1.1/sync/folders.svc/%s/folders";
 	private static final String SUBMIT_FILE_INFORMATION_URL = "https://xml.syncplicity.com/1.1/sync/files.svc/%s/files";
@@ -468,9 +467,8 @@ public class SyncplicityConnection {
 		}
 	}
 
-	public SharingParticipantData[] addSharingParticipantBulk(Long syncPointId,
-			SharingParticipantData[] sharingParticipant) throws IOException,
-			SyncplicityException {
+	public SharingParticipantData[] addSharingParticipantBulk(SharingParticipantData[] sharingParticipant) 
+			throws IOException,	SyncplicityException {
 		SharingParticipantData[] sharingParticipantCreated = null;
 
 		DefaultHttpClient httpclient = wrapClient(new DefaultHttpClient());
@@ -921,40 +919,6 @@ public class SyncplicityConnection {
 		return uploadEntity;
 	}
 
-//	public GlobalFileData uploadNewFile(InputStream fileData, String filePath,
-//			String fileName, Long virtualFolderId, String creationTimeUtc,
-//			Long syncPriority) throws NoSuchAlgorithmException,
-//			UnsupportedEncodingException, ClientProtocolException, IOException,
-//			SyncplicityException {
-//		return uploadFile(fileData, filePath, fileName, virtualFolderId, creationTimeUtc, 
-//							creationTimeUtc, syncPriority, FileData.FileDataStatus.ADDED);
-//	}
-
-//	public GlobalFileData uploadUpdatedFile(InputStream fileData, String filePath,
-//			String fileName, Long virtualFolderId, String creationTimeUtc,
-//			String lastWriteTimeUtc, Long syncPriority) throws NoSuchAlgorithmException,
-//			UnsupportedEncodingException, ClientProtocolException, IOException,
-//			SyncplicityException {
-//		return uploadFile(fileData, filePath, fileName, virtualFolderId, creationTimeUtc, 
-//							lastWriteTimeUtc, syncPriority, FileData.FileDataStatus.UPDATED);
-//	}
-//	
-//	private GlobalFileData uploadFile(InputStream fileStream, FileData fileData, Long virtualFolderId, String creationTimeUtc,
-//	String lastWriteTimeUtc, Long syncPriority, FileDataStatus status) throws NoSuchAlgorithmException,
-//	UnsupportedEncodingException, ClientProtocolException, IOException,
-//	SyncplicityException {
-//		GlobalFileData uploadedFile = uploadFile(fileStream, fileData, virtualFolderId);
-//
-//		FileData[] files = new FileData[1];
-//		files[0] = new FileData(filePath, fileName, uploadedFile.getLength(),
-//				uploadedFile.getHash(), creationTimeUtc, lastWriteTimeUtc,
-//				syncPriority, status);
-//		submitFileInformation(files, virtualFolderId);
-//
-//		return uploadedFile;
-//		
-//	}
-
 	public MachineData registerNewMachine(MachineData basicMachine)
 			throws IOException, SyncplicityException {
 
@@ -964,8 +928,17 @@ public class SyncplicityConnection {
 
 		try {
 			HttpPost httpPost = new HttpPost(REGISTER_MACHINE_URL);
+			// The creation of machine must be done with basic authenticatoin
+			// Add as the very first interceptor in the protocol chain
+			httpclient.addRequestInterceptor(preemptiveAuth, 0);
 
-			setHeaders(httpPost);
+			httpclient.getCredentialsProvider().setCredentials(
+					new AuthScope(XML_SYNCPLICITY_URL, 443),
+					new UsernamePasswordCredentials(this.user, this.password));
+
+			httpPost.setHeader("Accept", "application/json");
+			httpPost.setHeader("Content-Type", "application/json");
+			
 			System.out.println("executing request" + httpPost.getRequestLine());
 			System.out.println("with entity: "
 					+ new Gson().toJson(basicMachine));
@@ -973,9 +946,6 @@ public class SyncplicityConnection {
 			httpPost.setEntity(new StringEntity(
 					new Gson().toJson(basicMachine), HTTP.UTF_8));
 
-			// The creation of machine must be done with basic authenticatoin
-			// Add as the very first interceptor in the protocol chain
-			httpclient.addRequestInterceptor(preemptiveAuth, 0);
 			HttpResponse response = httpclient.execute(httpPost);
 			HttpEntity entity = response.getEntity();
 
@@ -1010,56 +980,6 @@ public class SyncplicityConnection {
 		}
 		return machine;
 	}
-
-//	public GlobalFileData checkFileIsUploaded(String hash, Long fileLength)
-//			throws ClientProtocolException, IOException,
-//			SyncplicityException {
-//
-//		GlobalFileData globalFileData = null;
-//
-//		DefaultHttpClient httpclient = wrapClient(new DefaultHttpClient());
-//
-//		try {
-//			// Request folders
-//			HttpGet httpget = new HttpGet(new Formatter().format(
-//					CHECK_FILE_IS_UPLOADED_URL, hash, fileLength).toString());
-//
-//			setHeaders(httpget);
-//
-//			System.out.println("executing request" + httpget.getRequestLine());
-//
-//			HttpResponse response = httpclient.execute(httpget);
-//			HttpEntity entity = response.getEntity();
-//
-//			System.out.println("----------------------------------------");
-//			System.out.println(response.getStatusLine());
-//
-//			if (response.getStatusLine().getStatusCode() < 400) {
-//				if (entity != null) {
-//					System.out.println("Response content length: "
-//							+ entity.getContentLength());
-//					System.out.println("Response content Type: "
-//							+ entity.getContentType());
-//
-//					String responseContent = EntityUtils.toString(entity);
-//					System.out.println("Response content: " + responseContent);
-//
-//					globalFileData = new Gson().fromJson(responseContent,
-//							GlobalFileData.class);
-//				}
-//			} else {
-//				throw new SyncplicityException(response
-//						.getStatusLine().getReasonPhrase());
-//			}
-//		} finally {
-//			// When HttpClient instance is no longer needed,
-//			// shut down the connection manager to ensure
-//			// immediate deallocation of all system resources
-//			httpclient.getConnectionManager().shutdown();
-//		}
-//
-//		return globalFileData;
-//	}
 
 	public GlobalFileData[] checkFilesAreUploaded(GlobalFileData[] globalFiles)
 			throws IOException, SyncplicityException {
